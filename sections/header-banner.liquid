@@ -1,0 +1,162 @@
+<section class="relative bg-light-material overflow-hidden">
+    <div class="absolute left-0 right-0 w-full h-full" data-aos="zoom-out" data-aos-duration="800">
+        {% if section.settings.slide_image != blank %}
+            {% assign banner_alt = section.settings.slide_image.alt | default: section.settings.slide_title | strip_html %}
+            <picture>
+                <source media="(min-width: 4096px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 4096 }},
+                                {{ section.settings.slide_image | image_url: width: 8192 }} 2x"/>
+                <source media="(min-width: 2890px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 2890 }},
+                                {{ section.settings.slide_image | image_url: width: 5780 }} 2x"/>
+                <source media="(min-width: 2200px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 2200 }},
+                                {{ section.settings.slide_image | image_url: width: 4400 }} 2x"/>
+                <source media="(min-width: 2048px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 2048 }},
+                                {{ section.settings.slide_image | image_url: width: 4096 }} 2x"/>
+                <source media="(min-width: 1680px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 1680 }},
+                                {{ section.settings.slide_image | image_url: width: 3360 }} 2x"/>
+                <source media="(min-width: 1445px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 1445 }},
+                                {{ section.settings.slide_image | image_url: width: 2890 }} 2x"/>
+                <source media="(min-width: 1100px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 1100 }},
+                                {{ section.settings.slide_image | image_url: width: 2200 }} 2x"/>
+                <source media="(min-width: 991px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 991 }},
+                                {{ section.settings.slide_image | image_url: width: 1982 }} 2x"/>
+                <source media="(min-width: 768px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 768 }},
+                                {{ section.settings.slide_image | image_url: width: 1536 }} 2x"/>
+                <source media="(min-width: 550px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 550 }},
+                                {{ section.settings.slide_image | image_url: width: 1110 }} 2x"/>
+                <source media="(min-width: 375px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 375 }},
+                                {{ section.settings.slide_image | image_url: width: 750 }} 2x"/>
+                <source media="(min-width: 165px)"
+                        srcset="{{ section.settings.slide_image | image_url: width: 165 }},
+                                {{ section.settings.slide_image | image_url: width: 330 }} 2x"/>
+                {{ section.settings.slide_image | image_url: width: 4096 | image_tag:
+                    alt: banner_alt,
+                    class: "w-full h-full object-cover",
+                    preload: true
+                }}
+            </picture>
+        {% else %}
+            {{ 'image' | placeholder_svg_tag: 'w-full h-full object-cover' }}
+        {% endif %}
+    </div>
+    <div class="absolute top-0 left-0 w-full h-full bg-dark"
+         style="opacity: {{ section.settings.slide_overlay_opacity }}%"></div>
+    <div class="container relative">
+        <div class="min-h-300 w-full lg:w-540 max-sm:pb-56 pt-96 md:pt-200 md:pb-140 flex flex-col justify-center{% if settings.header_text_theme == "light" %} text-light{% endif %}">
+            {% if section.settings.slide_tag != blank %}
+                <p class="mb-24 text-p-small" data-aos="fade-in" data-aos-delay="300">
+                    {{ section.settings.slide_tag }}
+                </p>
+            {% endif %}
+            {% if section.settings.slide_title != blank %}
+                <h1 class="h1 whitespace-normal" data-aos="fade-up" data-aos-delay="300">
+                    {{ section.settings.slide_title | strip_html }}
+                </h1>
+            {% endif %}
+            {% if section.settings.slide_text != blank %}
+                <div class="mt-24 text-p-large" data-aos="fade-up" data-aos-delay="500">
+                    {{ section.settings.slide_text }}
+                </div>
+            {% endif %}
+            {% if section.settings.slide_button_title != blank %}
+                <div class="mt-24 lg:mt-32" data-aos="fade-in" data-aos-delay="300">
+                    <a {% if section.settings.slide_button_link == blank %}
+                        role="link"
+                        aria-disabled="true"
+                    {% else %} href="{{ section.settings.slide_button_link }}"{% endif %}
+                            class="btn {{ section.settings.slide_button_type }}">
+                        <span class="text">{{ section.settings.slide_button_title }}</span>
+                        {% render 'icon-right-arrow', class: "icon ml-8 w-16 h-16" %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.header.banner",
+  "tag": "section",
+  "class": "header-banner",
+  "settings": [
+    {
+      "type": "range",
+      "id": "slide_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "t:sections.slideshow.blocks.slide.settings.image_overlay_opacity.label",
+      "default": 0
+    },
+    {
+      "type": "image_picker",
+      "id": "slide_image",
+      "label": "t:sections.slideshow.blocks.slide.name"
+    },
+    {
+      "type": "text",
+      "id": "slide_tag",
+      "label": "t:settings_schema.global.settings.tag.label"
+    },
+    {
+      "type": "richtext",
+      "id": "slide_title",
+      "label": "t:settings_schema.global.settings.heading.label",
+      "default": "<p>Tell your brand's story through images</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "slide_text",
+      "label": "t:settings_schema.global.settings.content.label",
+      "default": "<p>Tell your brand's story through images</p>"
+    },
+    {
+      "type": "url",
+      "id": "slide_button_link",
+      "label": "t:settings_schema.global.settings.button.link.label"
+    },
+    {
+      "type": "text",
+      "id": "slide_button_title",
+      "label": "t:settings_schema.global.settings.button.label.label",
+      "info": "t:settings_schema.global.settings.button.label.info"
+    },
+    {
+      "type": "select",
+      "id": "slide_button_type",
+      "label": "t:settings_schema.global.settings.button.type.label",
+      "options": [
+        {
+          "value": "",
+          "label": "t:settings_schema.global.settings.button.type.options.action"
+        },
+        {
+          "value": "btn-outline",
+          "label": "t:settings_schema.global.settings.button.type.options.outline"
+        },
+        {
+          "value": "btn-primary",
+          "label": "t:settings_schema.global.settings.button.type.options.primary"
+        },
+        {
+          "value": "btn-inverted",
+          "label": "t:settings_schema.global.settings.button.type.options.inverted"
+        }
+      ],
+      "default": ""
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,259 @@
+{% render 'section-padding', id: section.id, padding_top: section.settings.padding_top, padding_bottom: section.settings.padding_bottom %}
+
+<section class="section-{{ section.id }}-padding" style="background-color: {{ section.settings.background_color }}">
+    <div class="container">
+        <div class="mb-32 pb-16 md:pb-32 flex max-sm:flex-col flex-wrap gap-y-32 justify-between items-baseline border-b{% if section.settings.text_theme == "light" %} border-light-20{% else %} border-light-material{% endif %}">
+            <div class="w-full md:max-w-1/2 flex-shrink-0">
+                <h2 class="h3{% if section.settings.text_theme == "light" %} text-light{% endif %}">{{ section.settings.heading | escape }}</h2>
+            </div>
+            <ul class="nav product-tabs max-w-full flex md:gap-32 overflow-y-auto" role="tablist">
+                {% for block in section.blocks limit: 5 %}
+                    {% liquid
+                        assign text_theme = ""
+                        if section.settings.text_theme == "light"
+                            assign text_theme = " tab-link-light"
+                        else
+                            assign text_theme = " tab-link-dark"
+                        endif
+                    %}
+                    <li role="presentation">
+                        <button class="tab-link text-p-large transition-colors {{ text_theme }}{% if forloop.first %} active{% endif %}"
+                                data-bs-toggle="tab"
+                                data-bs-target="#{{ block.settings.heading | default: block.settings.collection.title | camelcase }}{{ forloop.index }}"
+                                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                type="button"
+                                role="tab">
+                            {{ block.settings.heading | default: block.settings.collection.title | escape }}
+                        </button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container">
+        {% for block in section.blocks limit: 5 %}
+            {% assign slides_number = block.settings.collection.products | size %}
+            <div id="{{ block.settings.heading | default: block.settings.collection.title | camelcase }}{{ forloop.index }}"
+                 class="tab-pane relative fade{% if forloop.first %} show active{% endif %}"
+                 role="tabpanel"
+                 aria-labelledby="{{ block.id }}-title">
+                <div data-generic-slider="slider-{{ block.id }}"
+                     data-num-slides="{{ slides_number }}" class="relative">
+                    <div data-glide-el="track"
+                         class="glide__track h-full">
+                        <div class="glide__slides">
+                            {% for product in block.settings.collection.products limit: 20 %}
+                                <div class="glide__slide w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+                                    {% render 'card-product',
+                                            card_product: product,
+                                            show_vendor: block.settings.show_vendor,
+                                            show_secondary_image: block.settings.show_secondary_image,
+                                            show_stock_state: block.settings.show_stock_state,
+                                            button: block.settings.product_hover_button,
+                                            section_id: block.id,
+                                            section: block,
+                                            text_theme: section.settings.text_theme
+                                    %}
+                                </div>
+                            {%- else -%}
+                                {%- for i in (1..4) -%}
+                                    <div class="glide__slide w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
+                                        {% render 'card-product', show_vendor: section.settings.show_vendor %}
+                                    </div>
+                                {%- endfor -%}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% if slides_number > 1 %}
+                        <div data-glide-el="controls">
+                            {% liquid
+                                assign larr_classes = "w-24 h-24 rotate-180 transition-colors"
+                                assign rarr_classes = "w-24 h-24 transition-colors"
+                                if section.settings.text_theme == "light"
+                                    assign larr_classes = larr_classes | append: " text-light group-hover:text-dark"
+                                    assign rarr_classes = rarr_classes | append: " text-light group-hover:text-dark"
+                                endif
+                            %}
+                            <div class="group px-6 absolute top-1/2 -left-16 sm:-left-44 -translate-y-1/2 cursor-pointer"
+                                 data-glide-dir="<">
+                                <button class="w-32 h-64 max-sm:bg-light flex-center transition-colors border border-transparent group-hover:bg-light group-hover:border-light-material"
+                                        type="button"
+                                        aria-label="Previous slide">
+                                    {% render "icon-right-arrow-big", class: larr_classes %}
+                                </button>
+                            </div>
+                            <div class="group px-6 absolute top-1/2 -right-16 sm:-right-44 -translate-y-1/2 cursor-pointer"
+                                 data-glide-dir=">">
+                                <button class="w-32 h-64 max-sm:bg-light flex-center transition-colors border border-transparent group-hover:bg-light group-hover:border-light-material"
+                                        type="button"
+                                        aria-label="Next slide">
+                                    {% render "icon-right-arrow-big", class: rarr_classes %}
+                                </button>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <script>
+                window.glide_options = window.glide_options || {};
+                window.glide_options['slider-{{ block.id }}'] = {
+                    bound: true,
+                    gap: 16,
+                    dragThreshold: false,
+                    perView: 4,
+                    breakpoints: {
+                        991: {
+                            perView: 3,
+                        },
+                        768: {
+                            perView: 2
+                        },
+                        576: {
+                            perView: 1,
+                            swipeThreshold: 80,
+                            dragThreshold: 120,
+                            animationDuration: 150
+                        }
+                    }
+                };
+            </script>
+        {% endfor %}
+    </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.product-tabs.name",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Heading",
+      "label": "t:settings_schema.global.settings.heading.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.featured-products.settings.background_color.label",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "select",
+      "id": "text_theme",
+      "label": "t:settings_schema.global.settings.text_theme.label",
+      "options": [
+        {
+          "value": "dark",
+          "label": "t:sections.all.text_theme.options.dark"
+        },
+        {
+          "value": "light",
+          "label": "t:sections.all.text_theme.options.light"
+        }
+      ],
+      "default": "dark"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product-tab",
+      "name": "t:sections.product-tabs.tab.label",
+      "settings": [
+        {
+          "type": "header",
+          "content": "t:sections.slideshow.desc"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:settings_schema.global.settings.collection.label"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Product Tab",
+          "label": "t:settings_schema.global.settings.heading.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "default": false,
+          "label": "t:sections.product-recommendations.settings.show_vendor.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_stock_state",
+          "default": true,
+          "label": "t:sections.main-collection-product-grid.settings.show_stock_state.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_secondary_image",
+          "default": false,
+          "label": "t:sections.main-collection-product-grid.settings.show_secondary_image.label"
+        },
+        {
+          "type": "select",
+          "id": "product_hover_button",
+          "label": "t:sections.main-collection-product-grid.settings.product_hover_button.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.main-collection-product-grid.settings.product_hover_button.options.none.label"
+            },
+            {
+              "value": "quick_buy",
+              "label": "t:sections.main-collection-product-grid.settings.product_hover_button.options.options__2.label"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.product-tabs.presets.name",
+      "blocks": [
+        {
+          "type": "product-tab"
+        },
+        {
+          "type": "product-tab"
+        },
+        {
+          "type": "product-tab"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

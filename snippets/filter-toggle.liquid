@@ -1,0 +1,23 @@
+<div class="js-filter toggle{% unless forloop.last %} border-b{% endunless %} border-light-material"
+     data-index="{{ forloop.index }}">
+    {%- for value in filter.values -%}
+        {% if value.label == "In stock" %}
+            <input type="checkbox"
+                   name="{{ value.param_name }}"
+                   value="{{ value.value }}"
+                   id="Filter-{{ filter.label | escape }}-{{ forloop.index }}"
+                   {% if value.active %}checked{% endif %}
+                {% if value.count == 0 and value.active == false %}disabled{% endif %}
+            >
+            <label for="Filter-{{ filter.label | escape }}-{{ forloop.index }}">
+                <span class="font-bold">{{ value.label | escape }}</span>
+                <span class="visually-hidden">{{ value.label | escape }} ({% if value.count == 1 %}{{ 'products.facets.product_count_simple.one' | t: count: value.count }}{% else %}{{ 'products.facets.product_count_simple.other' | t: count: value.count }}{% endif %})</span>
+                <span class="font-bold"></span>
+                <span class="toggle-wrapper">
+                    {% render "icon-pipe", class: "w-20 h-20 text-light" %}
+                    <span class="toggle-icon"></span>
+                </span>
+            </label>
+        {% endif %}
+    {%- endfor -%}
+</div>

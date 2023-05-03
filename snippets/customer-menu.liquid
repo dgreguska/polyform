@@ -1,0 +1,34 @@
+<aside class="max-sm:hidden md:w-3/12">
+    <ul>
+        <li>
+            <a href="{{ routes.account_url }}"
+               class="flex items-center max-sm:px-20 py-12 font-bold hover:text-brand group">
+                {% render "icon-overview", class: "flex-shrink-0 w-24 h-24 mr-12" %}
+                <span class="max-sm:mr-16 transition-transform group-hover:translate-x-4">
+                {{ 'customer.account.overview' | t }}
+            </span>
+                {% render "icon-right-arrow-big", class: "md:hidden w-16 h-16 ml-auto" %}
+            </a>
+        </li>
+        <li>
+            <a href="{{ routes.account_url }}?view=order_history"
+               class="flex items-center max-sm:px-20 py-12 font-bold hover:text-brand group">
+                {% render "icon-history", class: "flex-shrink-0 w-24 h-24 mr-12" %}
+                <span class="max-sm:mr-16 transition-transform group-hover:translate-x-4">
+                {{ "customer.orders.title" | t }}
+            </span>
+                {% render "icon-right-arrow-big", class: "md:hidden w-16 h-16 ml-auto" %}
+            </a>
+        </li>
+        <li>
+            <a href="{{ routes.account_addresses_url }}"
+               class="flex items-center max-sm:px-20 py-12 font-bold hover:text-brand group">
+                {% render "icon-map", class: "flex-shrink-0 w-24 h-24 mr-12" %}
+                <span class="max-sm:mr-16 transition-transform group-hover:translate-x-4">
+                {{ "customer.addresses.title" | t }}
+            </span>
+                {% render "icon-right-arrow-big", class: "md:hidden w-16 h-16 ml-auto" %}
+            </a>
+        </li>
+    </ul>
+</aside>

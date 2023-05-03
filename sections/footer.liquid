@@ -1,0 +1,338 @@
+<div class="container pt-56">
+    <div class="flex flex-wrap max-sm:flex-col justify-between">
+        <div class="mr-16 mb-16">
+            <a href="{{ routes.root_url }}" class="inline-block mr-32"
+               aria-label="{{ section.settings.logo.alt | default: shop.name | escape }}"
+               style="width: {{ section.settings.logo_width | times: 0.75 | round: 0 | divided_by: 16.0 }}rem">
+                {%- if section.settings.logo != blank -%}
+                    {% liquid
+                        assign image_size_2x = section.settings.logo_width | times: 2 | at_most: 5760
+                        assign logo_alt = section.settings.logo.alt | default: shop.name | escape
+                    %}
+                    <picture>
+                        <source srcset="{{ section.settings.logo | image_url: width: section.settings.logo_width }} 1x,
+                                        {{ section.settings.logo | image_url: width: image_size_2x }} 2x"/>
+                        {{ section.settings.logo | image_url: width: section.settings.logo_width | image_tag:
+                        width: section.settings.logo.width,
+                        height: section.settings.logo.height,
+                        loading: "lazy",
+                        alt: logo_alt
+                        }}
+                    </picture>
+                {%- else -%}
+                    <span class="h4">{{ shop.name }}</span>
+                {%- endif -%}
+            </a>
+            {%- if section.settings.show_social -%}
+                <div class="mt-12">
+                    <ul class="flex flex-wrap -mx-8" role="list">
+                        {%- if settings.social_twitter_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_twitter_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.twitter' | t }}">
+                                    {%- render 'icon-twitter', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.twitter' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                        {%- if settings.social_facebook_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_facebook_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.facebook' | t }}">
+                                    {%- render 'icon-facebook', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.facebook' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                        {%- if settings.social_pinterest_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_pinterest_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.pinterest' | t }}">
+                                    {%- render 'icon-pinterest', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.pinterest' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                        {%- if settings.social_instagram_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_instagram_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.instagram' | t }}">
+                                    {%- render 'icon-instagram', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.instagram' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                        {%- if settings.social_tiktok_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_tiktok_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.tiktok' | t }}">
+                                    {%- render 'icon-tiktok', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.tiktok' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                        {%- if settings.social_tumblr_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_tumblr_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.tumblr' | t }}">
+                                    {%- render 'icon-tumblr', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.tumblr' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                        {%- if settings.social_snapchat_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_snapchat_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.snapchat' | t }}">
+                                    {%- render 'icon-snapchat', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.snapchat' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                        {%- if settings.social_youtube_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_youtube_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.youtube' | t }}">
+                                    {%- render 'icon-youtube', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.youtube' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                        {%- if settings.social_vimeo_link != blank -%}
+                            <li class="m-8">
+                                <a href="{{ settings.social_vimeo_link }}" target="_blank" class="block"
+                                   title="{{ 'general.social.links.vimeo' | t }}">
+                                    {%- render 'icon-vimeo', class: "block w-16 h-16" -%}
+                                    <span class="visually-hidden">{{ 'general.social.links.vimeo' | t }}</span>
+                                </a>
+                            </li>
+                        {%- endif -%}
+                    </ul>
+                </div>
+            {%- endif -%}
+        </div>
+
+        {%- if section.blocks.size > 0 -%}
+            <div class="flex flex-wrap max-sm:flex-col text-p-small md:-mx-32 md:-my-12">
+                {%- for block in section.blocks -%}
+                    <div class="md:mx-32 md:my-12 max-sm:border-b border-light-material" {{ block.shopify_attributes }}>
+                        {%- if block.settings.heading != blank -%}
+                            <div class="collapse-btn md:mb-16 max-sm:py-16 collapsed font-bold cursor-auto md:pointer-events-none"
+                                 data-bs-toggle="collapse"
+                                 role="button"
+                                 aria-expanded="false"
+                                 data-bs-target="#{{ block.settings.heading | camelcase }}"
+                                 aria-controls="{{ block.settings.heading | camelcase }}"
+                            >
+                                {{- block.settings.heading | escape -}}
+                                {% render "icon-down-arrow", class: "md:hidden w-16 h-16" %}
+                            </div>
+                        {%- endif -%}
+
+                        <div id="{{ block.settings.heading | camelcase }}" class="collapse md:block">
+                            {%- case block.type -%}
+                                {%- when 'link_list' -%}
+                                    {%- if block.settings.menu != blank and block.settings.heading != blank -%}
+                                        <ul class="max-sm:pt-8 max-sm:pb-16 text-dark-material">
+                                            {%- for link in block.settings.menu.links -%}
+                                                <li class="max-sm:py-8 md:mb-8">
+                                                    <a href="{{ link.url }}"
+                                                       class="hover:underline{% if link.active %} underline{% endif %}">
+                                                        {{ link.title }}
+                                                    </a>
+                                                </li>
+                                            {%- endfor -%}
+                                        </ul>
+                                    {%- endif -%}
+                            {%- endcase -%}
+                        </div>
+                    </div>
+                {%- endfor -%}
+            </div>
+        {%- endif -%}
+    </div>
+    <div class="pt-32 md:pt-48 pb-32 flex justify-between flex-wrap">
+        <div class="mr-16">
+            {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+                <localization-form>
+                    {%- form 'localization', id: 'FooterLanguageForm', class: 'localization-form' -%}
+                        <div class="mr-16">
+                            <div class="relative">
+                                <button type="button"
+                                        class="text-p-small btn btn-outline max-sm:rounded-checkbox"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        aria-controls="FooterLanguageList"
+                                        aria-describedby="FooterLanguageLabel">
+                                    {% render "icon-globe", class: "w-16 h-16 mr-8" %}
+                                    {{ localization.language.endonym_name | capitalize }}
+                                    {% render "icon-down-arrow", class: "w-16 h-16 ml-12" %}
+                                </button>
+                                <ul id="FooterLanguageList" role="list"
+                                    class="dropdown-menu top-auto bottom-full mt-0 mb-16 right-0">
+                                    {%- for language in localization.available_languages -%}
+                                        <li class="disclosure__item" tabindex="-1">
+                                            <a class="dropdown-menu-link{% if language.iso_code == localization.language.iso_code %} text-brand{% endif %}"
+                                               href="#" hreflang="{{ language.iso_code }}"
+                                               lang="{{ language.iso_code }}"{% if language.iso_code == localization.language.iso_code %} aria-current="true"{% endif %}
+                                               data-value="{{ language.iso_code }}">
+                                                {{ language.endonym_name | capitalize }}
+                                            </a>
+                                        </li>
+                                    {%- endfor -%}
+                                </ul>
+                            </div>
+                            <input type="hidden" name="locale_code"
+                                   value="{{ localization.language.iso_code }}">
+                        </div>
+                    {%- endform -%}
+                </localization-form>
+            {%- endif -%}
+        </div>
+
+        {% if shop.enabled_payment_types.size > 0 %}
+            <div class="max-sm:pt-20 flex items-center flex-wrap gap-16">
+                {%- if section.settings.payment_enable -%}
+                    <p class="flex items-center mr-8 text-dark-60 text-p-small">
+                        {% render "icon-safety", class: "w-16 h-16 mr-4" %}
+                        {{ 'general.secure_payment' | t }}
+                    </p>
+                    <div>
+                        <span class="visually-hidden">{{ 'sections.footer.payment' | t }}</span>
+                        <ul class="flex flex-wrap items-center -m-4" role="list">
+                            {%- for type in shop.enabled_payment_types -%}
+                                <li class="p-4">
+                                    {{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                                </li>
+                            {%- endfor -%}
+                        </ul>
+                    </div>
+                {%- endif -%}
+            </div>
+        {% endif %}
+    </div>
+    <div class="md:text-center py-32 border-t border-light-material text-caption">
+        <p class="text-dark-60">
+            &copy; {{ 'now' | date: "%Y" }} {{ shop.name }}. {{ 'general.rights' | t }}</p>
+    </div>
+</div>
+
+{% javascript %}
+class LocalizationForm extends HTMLElement {
+constructor() {
+super();
+this.elements = {
+input: this.querySelector('input[name="locale_code"], input[name="country_code"]'),
+button: this.querySelector('button'),
+};
+this.elements.button.addEventListener('click', this.openSelector.bind(this));
+this.elements.button.addEventListener('focusout', this.closeSelector.bind(this));
+this.addEventListener('keyup', this.onContainerKeyUp.bind(this));
+
+this.querySelectorAll('a').forEach(item => item.addEventListener('click', this.onItemClick.bind(this)));
+}
+
+onContainerKeyUp(event) {
+if (event.code.toUpperCase() !== 'ESCAPE') return;
+
+this.elements.button.focus();
+}
+
+onItemClick(event) {
+event.preventDefault();
+const form = this.querySelector('form');
+this.elements.input.value = event.currentTarget.dataset.value;
+if (form) form.submit();
+}
+
+openSelector() {
+this.elements.button.focus();
+this.elements.button.setAttribute('aria-expanded', (this.elements.button.getAttribute('aria-expanded') === 'false').toString());
+}
+
+closeSelector(event) {
+const shouldClose = event.relatedTarget && event.relatedTarget.nodeName === 'BUTTON';
+}
+}
+
+customElements.define('localization-form', LocalizationForm);
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:sections.footer.name",
+  "tag": "footer",
+  "class": "border-t border-light-material",
+  "blocks": [
+    {
+      "type": "link_list",
+      "name": "t:sections.footer.blocks.link_list.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Quick links",
+          "label": "t:sections.footer.blocks.link_list.settings.heading.label",
+          "info": "t:sections.footer.blocks.link_list.settings.heading.info"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "default": "footer",
+          "label": "t:sections.footer.blocks.link_list.settings.menu.label",
+          "info": "t:sections.footer.blocks.link_list.settings.menu.info"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "t:sections.header.settings.logo.dark"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "default": 100,
+      "unit": "t:sections.header.settings.logo_width.unit",
+      "label": "t:sections.header.settings.logo_width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header__2.content",
+      "info": "t:sections.footer.settings.header__2.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social",
+      "default": false,
+      "label": "t:sections.footer.settings.show_social.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header__5.content",
+      "info": "t:sections.footer.settings.header__6.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "default": true,
+      "label": "t:sections.footer.settings.enable_language_selector.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header__7.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "payment_enable",
+      "default": true,
+      "label": "t:sections.footer.settings.payment_enable.label"
+    }
+  ]
+}
+{% endschema %}

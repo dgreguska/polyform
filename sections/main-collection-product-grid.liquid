@@ -1,0 +1,151 @@
+{%- if section.settings.enable_quick_add -%}
+    <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+<div class="container mb-56">
+    <div class="row lg:flex-nowrap">
+        {%- if section.settings.enable_filtering -%}
+            <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
+            <aside id="main-collection-filters" class="w-3/12 flex-shrink-0" data-id="{{ section.id }}"
+                   aria-labelledby="verticalTitle">
+                {% render 'facets', results: collection, enable_filtering: section.settings.enable_filtering, enable_sorting: section.settings.enable_sorting %}
+            </aside>
+        {%- endif -%}
+
+        <div class="w-full relative product-grid-container" id="ProductGridContainer">
+            {% render 'facet-filters-form', collection: collection, enable_sorting: section.settings.enable_sorting %}
+
+            {%- paginate collection.products by section.settings.products_per_page -%}
+                {%- if collection.products.size == 0 -%}
+                    <div id="product-grid" data-id="{{ section.id }}">
+                            <h2 class="h3">
+                                {{ 'sections.collection_template.empty' | t }}<br>
+                                {{ 'sections.collection_template.use_fewer_filters_html' | t: link: collection.url, class: "underlined-link link" }}
+                            </h2>
+                    </div>
+                {%- else -%}
+                    <div class="collection relative">
+                        <div class="max-md:hidden">
+                            {% render "loader", add_classes: 'absolute' %}
+                        </div>
+
+                        <ul id="product-grid" data-id="{{ section.id }}"
+                            class="grid grid-cols-2 lg:grid-cols-{{ section.settings.columns_desktop }} gap-y-32 md:gap-y-56 gap-x-12 md:gap-x-16 z-10">
+                            {%- for product in collection.products -%}
+                                {% liquid
+                                    assign lazy_load = false
+                                    if forloop.index > 2
+                                        assign lazy_load = true
+                                    endif
+                                %}
+                                <li>
+                                    {% render 'card-product',
+                                            card_product: product,
+                                            show_vendor: section.settings.show_vendor,
+                                            show_secondary_image: section.settings.show_secondary_image,
+                                            show_stock_state: section.settings.show_stock_state,
+                                            button: section.settings.product_hover_button,
+                                            section_id: section.id,
+                                            section: section,
+                                            lazy_load: lazy_load
+
+                                    %}
+                                </li>
+                            {%- endfor -%}
+                        </ul>
+
+                        {%- if paginate.pages > 1 -%}
+                            {% render 'pagination', paginate: paginate, anchor: '' %}
+                        {%- endif -%}
+                    </div>
+                {%- endif -%}
+            {%- endpaginate -%}
+        </div>
+    </div>
+</div>
+
+
+{% schema %}
+{
+  "name": "t:sections.main-collection-product-grid.name",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 8,
+      "max": 24,
+      "step": 4,
+      "default": 16,
+      "label": "t:sections.main-collection-product-grid.settings.products_per_page.label"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 5,
+      "step": 1,
+      "default": 3,
+      "label": "t:sections.main-collection-product-grid.settings.columns_desktop.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-product-grid.settings.header__3.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.show_secondary_image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "default": false,
+      "label": "t:sections.main-collection-product-grid.settings.show_vendor.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stock_state",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.show_stock_state.label"
+    },
+    {
+      "type": "select",
+      "id": "product_hover_button",
+      "label": "t:sections.main-collection-product-grid.settings.product_hover_button.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.main-collection-product-grid.settings.product_hover_button.options.none.label"
+        },
+        {
+          "value": "quick_view",
+          "label": "t:sections.main-collection-product-grid.settings.product_hover_button.options.options__1.label"
+        },
+        {
+          "value": "quick_buy",
+          "label": "t:sections.main-collection-product-grid.settings.product_hover_button.options.options__2.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-product-grid.settings.header__1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.enable_filtering.label",
+      "info": "t:sections.main-collection-product-grid.settings.enable_filtering.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.enable_sorting.label"
+    }
+  ]
+}
+{% endschema %}

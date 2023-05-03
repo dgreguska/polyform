@@ -1,0 +1,304 @@
+<div class="md:container mb-80">
+
+    <div class="max-sm:container">
+        {% render 'customer-header', active: 'Addresses' %}
+    </div>
+
+    <div class="row">
+        {% render 'customer-menu' %}
+        <div class="w-full md:w-9/12">
+            <div class="max-sm:container">
+                {% render 'customer-return-button' %}
+            </div>
+            <div class="md:border md:border-light-material rounded-checkbox overflow-hidden">
+                <div class="md:px-40 py-24 md:pt-40 md:pb-48 md:border-b md:border-light-material bg-light-surface">
+                    <div class="max-sm:container">
+                        <h2 class="mb-16 text-display-subtitle max-md:text-h4 font-bold tracking-tight">
+                            {{ 'customer.order.title' | t: name: order.name }}
+                        </h2>
+                        <div class="max-sm:text-p-small text-dark-60">
+                            {%- assign order_date = order.created_at | time_tag: format: "date_at_time" -%}
+                            <p>{{ 'customer.order.date_html' | t: date: order_date }}</p>
+                            {%- if order.cancelled -%}
+                                {%- assign cancelled_at = order.cancelled_at | time_tag: format: "date_at_time" -%}
+                                <p>{{ 'customer.order.cancelled_html' | t: date: cancelled_at }}</p>
+                                <p>{{ 'customer.order.cancelled_reason' | t: reason: order.cancel_reason_label }}</p>
+                            {%- endif -%}
+
+                            {% for line_item in order.line_items %}
+                                {%- if line_item.fulfillment -%}
+                                    <p>{{ 'customer.order.shipping' | t }}
+                                        - {{ line_item.fulfillment.tracking_company }} {%- if line_item.fulfillment.tracking_number -%}#{{ line_item.fulfillment.tracking_number }}{%- endif -%}</p>
+                                    {%- if line_item.fulfillment.tracking_url -%}
+                                        <a href="{{ line_item.fulfillment.tracking_url }}" target="_blank"
+                                           class="btn mt-16 inline-flex items-center">
+                                            {% render "icon-tracking", class: "flex-shrink-0 w-16 h-16 mr-8" %}
+                                            {{ 'customer.order.track_shipment' | t }}
+                                        </a>
+                                    {%- endif -%}
+                                    {% break %}
+                                {%- endif -%}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-sm:container">
+                    <div class="max-sm:px-0 max-sm:py-24 p-40">
+                        {% if order.shipping_address or order.billing_address %}
+                            <ul class="grid lg:grid-cols-2 gap-16 md:gap-32">
+                                {% if order.shipping_address %}
+                                    <li class="h-full p-16 md:p-32 border border-light-material rounded-checkbox">
+                                        <h3 class="text-caption font-bold">
+                                            {{ 'customer.order.shipping_address' | t }}
+                                        </h3>
+                                        <p class="mt-16 md:text-p-large">{{ order.shipping_address.name | escape }}</p>
+                                        <div class="mt-8 md:mt-16 text-button text-dark-subdued leading-tight max-sm:text-p-small">
+                                            {% if order.shipping_address.company %}
+                                                <p>{{ order.shipping_address.company | escape }}</p>
+                                            {% endif %}
+                                            {% if order.shipping_address.street %}
+                                                <p>{{ order.shipping_address.street | escape }}</p>
+                                            {% endif %}
+                                            {% if order.shipping_address.province %}
+                                                <p>{{ order.shipping_address.province | escape }}</p>
+                                            {% endif %}
+                                            {% if order.shipping_address.province_code %}
+                                                <p>{{ order.shipping_address.province_code | escape }}</p>
+                                            {% endif %}
+                                            {% if order.shipping_address.city and order.shipping_address.zip %}
+                                                <p>
+                                                    {{ order.shipping_address.zip }}, {{ order.shipping_address.city }}
+                                                </p>
+                                            {% endif %}
+                                            {% if order.shipping_address.country %}
+                                                <p>{{ order.shipping_address.country | escape }}
+                                                    , {{ order.shipping_address.country_code | escape }}</p>
+                                            {% endif %}
+                                            {% if order.shipping_address.phone %}
+                                                <p class="mt-8">{{ order.shipping_address.phone | escape }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endif %}
+                                {% if order.billing_address %}
+                                    <li class="h-full p-16 md:p-32 border border-light-material rounded-checkbox">
+                                        <h3 class="text-caption font-bold">
+                                            {{ 'customer.order.billing_address' | t }}
+                                        </h3>
+                                        <p class="mt-16 md:text-p-large">{{ order.billing_address.name | escape }}</p>
+                                        <div class="mt-8 md:mt-16 text-button text-dark-subdued leading-tight max-sm:text-p-small">
+                                            {% if order.billing_address.company %}
+                                                <p>{{ order.billing_address.company | escape }}</p>
+                                            {% endif %}
+                                            {% if order.billing_address.street %}
+                                                <p>{{ order.billing_address.street | escape }}</p>
+                                            {% endif %}
+                                            {% if order.billing_address.province %}
+                                                <p>{{ order.billing_address.province | escape }}</p>
+                                            {% endif %}
+                                            {% if order.billing_address.province_code %}
+                                                <p>{{ order.billing_address.province_code | escape }}</p>
+                                            {% endif %}
+                                            {% if order.billing_address.city and order.billing_address.zip %}
+                                                <p>
+                                                    {{ order.billing_address.zip }}, {{ order.billing_address.city }}
+                                                </p>
+                                            {% endif %}
+                                            {% if order.billing_address.country %}
+                                                <p>{{ order.billing_address.country | escape }}
+                                                    , {{ order.billing_address.country_code | escape }}</p>
+                                            {% endif %}
+                                            {% if order.billing_address.phone %}
+                                                <p class="mt-8">{{ order.billing_address.phone | escape }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        {% endif %}
+                        <div class="mt-24">
+                            <h2 class="font-bold">{{ 'customer.order.purchased_goods' | t }}</h2>
+                            <ul>
+                                {%- for line_item in order.line_items -%}
+                                    <li class="border-b border-light-material{% if forloop.last %} border-b-0{% endif %}">
+                                        <a href="{%- if line_item.url != blank -%}{{ line_item.url }}{% else %}javascript:void(0);{% endif %}"
+                                           class="group flex py-24"
+                                           title="{{ line_item.title | escape }}">
+                                            <div class="w-80 lg:w-120 h-80 lg:h-120 mr-16 flex-shrink-0">
+                                                {% if line_item.image != blank %}
+                                                    <picture>
+                                                        <source srcset="{{ line_item.image | image_url: width: 120, height: 120, crop: "center" }},
+                                                                        {{ line_item.image | image_url: width: 240, height: 240, crop: "center" }} 2x"/>
+                                                        {% liquid
+                                                            if line_item.image.alt != blank
+                                                                assign image_alt = line_item.image.alt
+                                                            else
+                                                                assign image_alt = line_item.title
+                                                            endif
+                                                        %}
+                                                        {{ line_item.image | image_url: width: 120, height: 120, crop: "center" | image_tag:
+                                                        width: 120,
+                                                        height: 120,
+                                                        class: 'w-full h-full object-cover',
+                                                        alt: image_alt }}
+                                                    </picture>
+                                                {% else %}
+                                                    {{ 'product-1' | placeholder_svg_tag: 'bg-light-surface w-full h-full object-cover' }}
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex">
+                                                <div class="max-sm:mr-24">
+                                                    <h3 class="md:text-p-large font-bold">{{ line_item.title | escape }}</h3>
+                                                    <p class="text-p-small">{{ line_item.vendor | escape }}</p>
+                                                    {%- unless line_item.product.has_only_default_variant -%}
+                                                        <div class="mt-8 text-dark-subdued text-p-small">
+                                                            <ul>
+                                                                {% for option in line_item.options_with_values %}
+                                                                    <li>{{ option.name }}: {{ option.value }}</li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                        </div>
+                                                    {% endunless %}
+                                                    {%- assign property_size = line_item.properties | size -%}
+                                                    {%- unless line_item.selling_plan_allocation == nil and property_size == 0 -%}
+                                                        <div class="mt-8 text-dark-subdued text-p-small">
+                                                            {%- unless line_item.product.has_only_default_variant -%}
+                                                                <p>{{ line_item.variant.title }}</p>
+                                                            {%- endunless -%}
+                                                            {%- unless line_item.selling_plan_allocation == nil -%}
+                                                                <p>
+                                                                    {{ line_item.selling_plan_allocation.selling_plan.name }}
+                                                                </p>
+                                                            {%- endunless -%}
+                                                            {%- if property_size != 0 -%}
+                                                                {%- for property in line_item.properties -%}
+                                                                    {% assign property_first_char = property.first | slice: 0 %}
+                                                                    {%- if property.last != blank and property_first_char != '_' -%}
+                                                                        <span>
+                                                                          {{ property.first }}:&nbsp;
+                                                                          {%- if property.last contains '/uploads/' -%}
+                                                                              <a href="{{ property.last }}">{{ property.last | split: '/' | last }}</a>
+                                                                          {%- else -%}
+                                                                              {{ property.last }}
+                                                                          {%- endif -%}
+                                                                        </span>
+                                                                    {%- endif -%}
+                                                                {%- endfor -%}
+                                                            {%- endif -%}
+                                                        </div>
+                                                    {%- endunless -%}
+                                                </div>
+                                            </div>
+                                            <div class="ml-auto flex flex-wrap max-md:flex-col-reverse max-md:justify-between max-md:items-end justify-end">
+                                                <p class="lg:mr-80 text-p-small text-dark-subdued">
+                                                    <span class="max-md:hidden">{{ 'customer.order.quantity' | t }}:</span>
+                                                    {{ line_item.quantity }}
+                                                </p>
+                                                {%- if line_item.original_price != line_item.final_price or line_item.unit_price_measurement -%}
+                                                    {%- if line_item.original_price != line_item.final_price -%}
+                                                        <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+                                                        <p class="text-caption text-dark-subdued">
+                                                            <s>{{ line_item.original_price | money }}</s>
+                                                        </p>
+                                                        <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+                                                        <span>{{ line_item.final_price | money }}</span>
+                                                    {%- else -%}
+                                                        <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+                                                        <p class="text-p-small font-bold whitespace-nowrap">{{ line_item.original_price | money }}</p>
+                                                    {%- endif -%}
+                                                    {%- if line_item.unit_price_measurement -%}
+                                                        <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>
+                                                        <div class="text-caption uppercase">
+                                                            <span>
+                                                              {%- capture unit_price_separator -%}
+                                                                  <span aria-hidden="true">/</span>
+                                                                  <span class="visually-hidden">{{ 'accessibility.unit_price_separator' | t }}&nbsp;</span>
+                                                              {%- endcapture -%}
+                                                                {%- capture unit_price_base_unit -%}
+                                                                    {%- if line_item.unit_price_measurement.reference_value != 1 -%}
+                                                                        {{- line_item.unit_price_measurement.reference_value -}}
+                                                                    {%- endif -%}
+                                                                    {{ line_item.unit_price_measurement.reference_unit }}
+                                                                {%- endcapture -%}
+                                                              <span data-unit-price>{{ line_item.unit_price | money }}</span>
+                                                              {{- unit_price_separator -}}
+                                                                {{- unit_price_base_unit -}}
+                                                            </span>
+                                                        </div>
+                                                    {%- endif -%}
+                                                {%- else -%}
+                                                    <p class="text-p-small font-bold whitespace-nowrap">{{ line_item.final_price | money }}</p>
+                                                {%- endif -%}
+                                                <div class="max-md:hidden flex w-full self-end order-1">
+                                                    <div class="inline-block ml-auto transition-transform group-hover:translate-x-4">
+                                                        {% render "icon-right-arrow-big", class: "w-24 h-24" %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </li>
+                                {%- endfor -%}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="max-sm:px-0 max-sm:py-24 p-40 border-t border-light-material">
+                        <h2 class="mb-32 h4">{{ 'customer.order.summary' | t }}</h2>
+                        <div class="mt-24 pt-24">
+                            <div class="flex justify-between">
+                                <p>{{ 'customer.orders.payment_status' | t }}</p>
+                                <p class="font-bold">{{ order.financial_status_label }}</p>
+                            </div>
+                        </div>
+                        <div class="mt-24 pt-24 border-t border-light-material">
+                            <div class="flex justify-between">
+                                <p>{{ 'customer.orders.fulfillment_status' | t }}</p>
+                                <p class="font-bold">{{ order.fulfillment_status_label }}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-24 pt-24 border-t border-light-material">
+                            <div class="flex justify-between">
+                                <p>{{ 'customer.order.subtotal' | t }}</p>
+                                <p class="ml-16 whitespace-nowrap">{{ order.line_items_subtotal_price | money }}</p>
+                            </div>
+                            {%- if order.cart_level_discount_applications != blank -%}
+                                {%- for discount_application in order.cart_level_discount_applications -%}
+                                    <div class="flex justify-between">
+                                        <p>{{ 'customer.order.discount' | t }} ({{- discount_application.title -}})</p>
+                                        <p class="ml-16 whitespace-nowrap">
+                                            -{{ discount_application.total_allocated_amount | money }}</p>
+                                    </div>
+                                {%- endfor -%}
+                            {%- endif -%}
+                            {%- for shipping_method in order.shipping_methods -%}
+                                <div class="flex justify-between">
+                                    <p>{{ 'customer.order.shipping' | t }} ({{ shipping_method.title }})</p>
+                                    <p class="ml-16 whitespace-nowrap">{{ shipping_method.price | money }}</p>
+                                </div>
+                            {%- endfor -%}
+                            {%- for tax_line in order.tax_lines -%}
+                                <div class="flex justify-between">
+                                    <p>{{ 'customer.order.tax' | t }}
+                                        ({{ tax_line.title }} {{ tax_line.rate | times: 100 }}%)</p>
+                                    <p class="ml-16 whitespace-nowrap">{{ tax_line.price | money }}</p>
+                                </div>
+                            {%- endfor -%}
+                            {%- if order.total_duties -%}
+                                <div class="flex justify-between">
+                                    <p>{{ 'customer.order.total_duties' | t }}</p>
+                                    <p class="ml-16 whitespace-nowrap">{{ order.total_duties | money }}</p>
+                                </div>
+                            {%- endif -%}
+                            <div class="mt-16 flex justify-between">
+                                <h2 class="text-p-large font-bold">{{ 'customer.orders.total' | t }}</h2>
+                                <p class="text-p-large text-right font-bold whitespace-nowrap">{{ order.total_price | money_with_currency }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

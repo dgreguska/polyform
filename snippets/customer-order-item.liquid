@@ -1,0 +1,62 @@
+<li class="group {% unless forloop.first %}max-sm:mt-8 {% endunless %}max-sm:border{% unless forloop.last %} md:border-b{% endunless %} border-light-material">
+    <a href="{{ order.customer_url }}"
+       class="md:py-32 flex md:items-center max-md:flex-col">
+        <div class="max-sm:p-16 md:mr-auto">
+            <div class="mb-8 flex xl:items-center max-lg:flex-col-reverse">
+                <h3 class="md:text-p-large text-brand font-bold">
+                    {{ 'customer.orders.order_number' | t }} {{ order.name }}
+                </h3>
+            </div>
+            <div class="flex items-center flex-wrap gap-x-24 gap-y-8">
+                <p class="max-sm:text-p-small text-dark-subdued">{{ order.created_at | time_tag: format: 'date' }}</p>
+                <p class="max-sm:text-p-small ">{{ order.total_price | money }}</p>
+                <ul class="flex flex-wrap gap-4">
+                    <li class="text-caption px-10 py-2 rounded-full bg-dark-10">
+                        {{ order.financial_status_label }}
+                    </li>
+                    <li class="text-caption px-10 py-2 rounded-full bg-dark-10">
+                        {{ order.fulfillment_status_label }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="flex items-center max-sm:p-16 max-sm:mt-0 max-md:mt-16 max-md:w-full max-md:justify-between max-sm:border-t border-light-material">
+            <ul class="flex flex-wrap -m-4">
+                {%- for item in order.line_items limit: 3 -%}
+                    <li class="m-4 bg-light-surface flex-shrink-0">
+                        {%- assign featured_image = item.product.featured_image -%}
+                        <div class="w-56 h-56">
+                            {% if featured_image != blank %}
+                                <picture>
+                                    <source data-srcset="{{ featured_image | image_url: width: 56, height: 56, crop: "center" }},
+                                    {{ featured_image | image_url: width: 112, height: 112, crop: "center" }} 2x"/>
+                                    {% liquid
+                                        if featured_image.alt != blank
+                                            assign image_alt = featured_image.alt
+                                        else
+                                            assign image_alt = product.title
+                                        endif
+                                    %}
+                                    <img data-src="{{ featured_image | image_url: width: 56, height: 56, crop: "center" }}"
+                                         alt="{{ featured_image.alt }}"
+                                         width="56"
+                                         height="56"
+                                         class="lazyload w-full h-full object-cover">
+                                </picture>
+                            {% else %}
+                                {{ 'product-1' | placeholder_svg_tag: 'bg-light-surface w-full h-full object-cover' }}
+                            {% endif %}
+                        </div>
+                    </li>
+                {%- endfor -%}
+                {% assign items_size = order.line_items | size %}
+                {% if items_size > 3 %}
+                    <li class="w-56 h-56 flex-shrink-0 m-4 flex items-center justify-center border border-light-material">
+                        <span class="text-button">+{{ items_size | minus: 3 }}</span>
+                    </li>
+                {% endif %}
+            </ul>
+            {% render "icon-right-arrow-big", class: "max-sm:hidden ml-16 w-24 h-24 transition-transform group-hover:translate-x-4" %}
+        </div>
+    </a>
+</li>

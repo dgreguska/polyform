@@ -1,0 +1,127 @@
+<div id="Banner-{{ section.id }}" class="md:w-1/3 mx-auto text-center">
+    {%- for block in section.blocks -%}
+        {%- case block.type -%}
+            {%- when 'heading' -%}
+                <h2 class="h2" {{ block.shopify_attributes }}>{{ block.settings.heading | escape }}</h2>
+            {%- when 'paragraph' -%}
+                <div class="text-dark-material mt-20" {{ block.shopify_attributes }}>{{ block.settings.text }}</div>
+            {%- when 'email_form' -%}
+                <div class="mt-20" {{ block.shopify_attributes }}>
+                    {% form 'customer' %}
+                        {%- if form.posted_successfully? -%}
+                            <div id="Newsletter-success--{{ section.id }}"
+                                 class="mb-20 p-16 flex items-center bg-positive-25 border border-positive rounded-md"
+                                 tabindex="-1"
+                                 autofocus>
+                                {% render "icon-checkmark-circle", class: "mr-16 w-24 h-24 flex-shrink-0 text-positive" %}
+                                {{ 'newsletter.success' | t }}
+                            </div>
+                        {%- endif -%}
+                        <input type="hidden" name="contact[tags]" value="newsletter">
+                        <div class="relative">
+                            <input id="NewsletterForm--{{ section.id }}"
+                                   type="email"
+                                   name="contact[email]"
+                                   class="input"
+                                   value="{{ form.email }}"
+                                   aria-required="true"
+                                   autocorrect="off"
+                                   autocapitalize="off"
+                                   autocomplete="email"
+                                    {% if form.errors %}
+                                        autofocus
+                                        aria-invalid="true"
+                                        aria-describedby="Newsletter-error--{{ section.id }}"
+                                    {% elsif form.posted_successfully? %}
+                                        aria-describedby="Newsletter-success--{{ section.id }}"
+                                    {% endif %}
+                                   placeholder="{{ 'newsletter.label' | t }}"
+                                   required
+                            >
+                            <label for="NewsletterForm--{{ section.id }}">
+                                {{ 'newsletter.label' | t }}
+                            </label>
+                            {%- if form.errors -%}
+                                <div id="Newsletter-error--{{ section.id }}"
+                                     class="mt-8 flex items-center text-caption text-negative">
+                                    {% render "icon-validation", class: "mr-4 w-16 h-16 flex-shrink-0" %}
+                                    {{ form.errors.translated_fields['email'] | capitalize }} {{ form.errors.messages['email'] }}
+                                </div>
+                            {%- endif -%}
+                        </div>
+                        <button type="submit" class="btn btn-large mt-12 w-full"
+                                name="commit" id="Subscribe"
+                                aria-label="{{ 'newsletter.button_label' | t }}">
+                            {{ 'newsletter.button_label' | t }}
+                        </button>
+                    {% endform %}
+                </div>
+        {%- endcase -%}
+    {%- endfor -%}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.email-signup-banner.name",
+  "tag": "section",
+  "class": "container",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.email-signup-banner.settings.paragraph.content"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.email-signup-banner.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "default": "Opening soon",
+          "label": "t:sections.email-signup-banner.blocks.heading.settings.heading.label"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "name": "t:sections.email-signup-banner.blocks.paragraph.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Be the first to know when we launch.</p>",
+          "label": "t:sections.email-signup-banner.blocks.paragraph.settings.paragraph.label"
+        }
+      ]
+    },
+    {
+      "type": "email_form",
+      "name": "t:sections.email-signup-banner.blocks.email_form.name",
+      "limit": 1
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.email-signup-banner.presets.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "paragraph"
+        },
+        {
+          "type": "email_form"
+        }
+      ]
+    }
+  ],
+  "templates": [
+    "password"
+  ]
+}
+{% endschema %}

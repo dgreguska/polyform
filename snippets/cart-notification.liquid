@@ -1,0 +1,49 @@
+<cart-notification>
+    <div id="cart-notification" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content basket-modal mx-auto" aria-modal="true"
+                 aria-label="{{ 'general.cart.item_added' | t }}" role="dialog" tabindex="-1">
+                <div class="modal-body p-0 max-sm:flex max-sm:flex-col md:h-auto">
+                    <div class="p-32 pt-40">
+                        <h2 class="mx-auto h3 text-center">{{ 'general.cart.item_added' | t }}</h2>
+                        <div class="mt-40">
+                            <div id="cart-notification-product"></div>
+                        </div>
+                        <div class="group absolute top-10 md:top-24 right-10 md:right-24 -m-10 p-10 cursor-pointer" data-bs-dismiss="modal">
+                            {% render "icon-close", class: "w-24 h-24 text-dark-material transition-transform group-hover:rotate-90" %}
+                        </div>
+                    </div>
+                    <div class="max-sm:mt-auto p-32 bg-light-surface border-t border-light-material">
+                        <div class="js-contents flex justify-between">
+                            <div>
+                                <p class="text-p-large font-bold">{{ 'sections.cart.subtotal' | t }}</p>
+                                <p class="text-caption text-dark-60">
+                                    {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                                        {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                                    {%- elsif cart.taxes_included -%}
+                                        {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+                                    {%- elsif shop.shipping_policy.body != blank -%}
+                                        {{ 'sections.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+                                    {%- else -%}
+                                        {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+                                    {%- endif -%}
+                                </p>
+                            </div>
+                            <p id="cart-notification-price" class="font-bold">{{ cart.total_price | money_with_currency }}</p>
+                        </div>
+                        <div class="mt-24 flex items-center max-sm:flex-col gap-8">
+                            <button type="button" class="max-sm:w-full btn btn-outline mr-auto">{{ 'general.continue_shopping' | t }}</button>
+                            <form action="{{ routes.cart_url }}" method="post" id="cart-notification-form" class="max-sm:w-full">
+                                <button class="max-sm:w-full btn"
+                                        name="checkout" type="submit">{{ 'sections.cart.checkout' | t }}</button>
+                            </form>
+                            <a title="View Cart" href="{{ routes.cart_url }}" id="cart-notification-button" class="max-sm:w-full btn">
+                                <span class="visually-hidden">Cart</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</cart-notification>

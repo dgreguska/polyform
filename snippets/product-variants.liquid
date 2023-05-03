@@ -1,0 +1,45 @@
+<variant-selects
+        id="variant-selects-{{ section.id }}"
+        data-section="{{ section.id }}"
+        data-url="{{ product.url }}"
+        {% if update_url == false %}
+            data-update-url="false"
+        {% endif %}
+        {{ block.shopify_attributes }}>
+    <div class="mt-24">
+        {%- for option in product.options_with_values -%}
+            {% unless option.name == "Color" or option.name == "Colour" %}
+                {% assign valuesSize = option.values | size %}
+                {% if valuesSize > 1 %}
+                    <div>
+                        <label class="w-full flex justify-between mb-14 text-p-small font-bold"
+                               for="Option-{{ section.id }}-{{ forloop.index0 }}{% if is_quickview %}-quickview{% endif %}">
+                            {{ option.name }}
+                        </label>
+                        <div class="relative">
+                            <select id="Option-{{ section.id }}-{{ forloop.index0 }}{% if is_quickview %}-quickview{% endif %}"
+                                    class="btn btn-outline w-full outline-none text-left appearance-none"
+                                    name="options[{{ option.name | escape }}]"
+                                    form="{{ product_form_id }}"
+                            >
+                                {% render 'product-variant-options', product: product, option: option, block: block %}
+                            </select>
+                            {% render "icon-down-arrow", class: "absolute top-1/2 -translate-y-1/2 right-16 w-16 h-16" %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="flex justify-between text-p-small">
+                        <p class="w-full flex justify-between text-p-small font-bold">{{ option.name }}</p>
+                        <p class="ml-8 text-dark-subdued flex-shrink-0">{{ option.selected_value }}</p>
+                    </div>
+                {% endif %}
+            {% endunless %}
+        {%- endfor -%}
+    </div>
+
+    <script type="application/json">
+        {{ product.variants | json }}
+
+
+    </script>
+</variant-selects>

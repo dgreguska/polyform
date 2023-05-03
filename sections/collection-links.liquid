@@ -1,0 +1,190 @@
+{% render 'section-padding', id: section.id, padding_top: section.settings.padding_top, padding_bottom: section.settings.padding_bottom %}
+
+<div class="section-{{ section.id }}-padding"
+     style="background-color: {{ section.settings.background_color }}" {{ block.shopify_attributes }}>
+    <div class="container">
+        <ul class="grid xl:grid-cols-2">
+            <li class="xl:py-64 xl:pr-120">
+                <p class="text-p-small mb-40 xl:mb-110{% if section.settings.text_theme == "light" %} text-light{% endif %}">{{ section.settings.tag }}</p>
+                <ul>
+                    {% for block in section.blocks %}
+                        {% case block.type -%}
+                            {% when 'collection' %}
+                                <li {{ block.shopify_attributes }}>
+                                    <a {% if block.settings.collection == blank %}
+                                        role="link"
+                                        aria-disabled="true"
+                                    {% else %} href="{{ block.settings.collection.url }}"{% endif %}
+                                            class="cl-link py-24 flex items-center justify-between gap-16 border-b border-light-material transition-all duration-500{% if section.settings.text_theme == "light" %} text-light hover:text-light{% endif %}"
+                                            data-image-target="{{ block.id }}">
+                                    <span class="cl-link-title h3 transition-opacity xl:opacity-50">
+                                        {{ block.settings.heading }}
+                                    </span>
+                                        <span class="btn btn-primary duration-500 max-lg:hidden xl:opacity-0 xl:invisible">{{ 'general.shop_now' | t }}</span>
+                                        {% render "icon-right-arrow-big", class: "xl:hidden w-24 h-24 ml-16" %}
+                                    </a>
+                                </li>
+                        {% endcase %}
+                    {% endfor %}
+                </ul>
+            </li>
+            <li class="relative max-lg:hidden">
+                {% for block in section.blocks %}
+                    {% case block.type -%}
+                        {% when 'collection' %}
+                            <div data-image-id="{{ block.id }}"
+                                 class="cl-image absolute top-0 left-0 w-full h-full xl:opacity-0 xl:invisible transition-all duration-700{% if forloop.first %} active{% endif %}">
+                                <div class="w-full h-full overflow-hidden">
+                                    {% if block.settings.image %}
+                                        {% liquid
+                                            assign page_width = 1440 | minus: 32
+                                            assign img_size = page_width | divided_by: 2
+                                            assign img_size_2x = img_size | times: 2
+                                            assign img_alt = block.settings.image.alt | default: section.id
+                                        %}
+                                        <picture>
+                                            <source media="(min-width: 1439px)"
+                                                    srcset="{{ block.settings.image | image_url: width: img_size, height: img_size }},
+                                                {{ block.settings.image | image_url: width: img_size_2x, height: img_size_2x }} 2x"/>
+                                            <source media="(min-width: 1199px)"
+                                                    srcset="{{ block.settings.image | image_url: width: 560, height: 560 }},
+                                                {{ block.settings.image | image_url: width: 1120, height: 1120 }} 2x"/>
+                                            <source media="(min-width: 991px)"
+                                                    srcset="{{ block.settings.image | image_url: width: 464, height: 464 }},
+                                                {{ block.settings.image | image_url: width: 928, height: 928 }} 2x"/>
+                                            <source media="(min-width: 767px)"
+                                                    srcset="{{ block.settings.image | image_url: width: 344, height: 344 }},
+                                                {{ block.settings.image | image_url: width: 688, height: 688 }} 2x"/>
+                                            <source media="(min-width: 550x)"
+                                                    srcset="{{ block.settings.image | image_url: width: 550 }},
+                                                {{ block.settings.image | image_url: width: 1110 }} 2x"/>
+                                            <source media="(min-width: 360px)"
+                                                    srcset="{{ block.settings.image | image_url: width: 360 }},
+                                                {{ block.settings.image | image_url: width: 720 }} 2x"/>
+                                            <source media="(min-width: 165px)"
+                                                    srcset="{{ block.settings.image | image_url: width: 165 }},
+                                                {{ block.settings.image | image_url: width: 330 }} 2x"/>
+                                            {{ block.settings.image | image_url: height: 704 | image_tag:
+                                            class: 'w-full h-full object-cover',
+                                            loading: "lazy",
+                                            alt: img_alt }}
+                                        </picture>
+                                    {% else %}
+                                        {{ 'lifestyle-1' | placeholder_svg_tag: 'w-full h-full object-cover' }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                    {% endcase %}
+                {% endfor %}
+            </li>
+        </ul>
+    </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.collection-links.name",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "max_blocks": 5,
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "t:sections.collection-links.blocks.label",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.collection-links.blocks.settings.image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.collection-links.blocks.settings.heading",
+          "default": "Collection"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.collection-links.blocks.settings.collection"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "text",
+      "id": "tag",
+      "label": "t:sections.collection-links.settings.title",
+      "default": "COLLECTION TITLE"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.featured-products.settings.background_color.label",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "select",
+      "id": "text_theme",
+      "label": "t:settings_schema.global.settings.text_theme.label",
+      "options": [
+        {
+          "value": "dark",
+          "label": "t:sections.all.text_theme.options.dark"
+        },
+        {
+          "value": "light",
+          "label": "t:sections.all.text_theme.options.light"
+        }
+      ],
+      "default": "dark"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.collection-links.name",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

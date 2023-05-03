@@ -1,0 +1,22 @@
+{% liquid
+    assign dimension = 0
+
+    if  is_left_thumb
+        assign dimension = dimension | plus: 80
+        assign dimension_2x = dimension | times: 2
+    else
+        assign dimension = dimension | plus: 108
+        assign dimension_2x = dimension | times: 2
+    endif
+%}
+<div class="thumbnail relative cursor-pointer">
+    <picture>
+        <source data-srcset="{{ media.preview_image | image_url: width: dimension, height: dimension, crop: "center" }},
+                        {{ media.preview_image | image_url: width: dimension_2x, height: dimension_2x, crop: "center" }} 2x"/>
+        <img data-src="{{ media.preview_image | image_url: width: dimension, height: dimension, crop: "center" }}"
+             alt="{{ media.preview_image.alt }}"
+             width="{{ dimension }}"
+             height="{{ dimension }}"
+             class="lazyload">
+    </picture>
+</div>

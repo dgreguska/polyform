@@ -1,0 +1,48 @@
+{%- if request.page_type == 'index' -%}
+{% liquid
+    assign logo_width_rem = section.settings.logo_width | divided_by: 16.0
+    assign logo_width = section.settings.logo_width
+    assign logo_width_2x = logo_width | times: 2
+%}
+<h1 class="h-auto flex self-stretch items-center">
+    {%- endif -%}
+    <a href="{{ routes.root_url }}" class="logo-light mr-32 md:mr-56 h-auto max-sm:max-w-100 flex self-stretch items-center"
+       style="width: {{ logo_width_rem }}rem">
+        {%- if logo_light != blank -%}
+            {% assign logo_alt = logo_light.alt | default: shop.name | escape %}
+            <picture>
+                <source srcset="{{ logo_light | image_url: width: logo_width }} 1x,
+                                {{ logo_light | image_url: width: logo_width_2x }} 2x">
+                {{ logo_light | image_url: width: logo_width | image_tag:
+                width: logo_width,
+                height: logo_light.height,
+                class: "w-full object-scale-down",
+                alt: logo_alt
+                }}
+            </picture>
+        {%- else -%}
+            <span class="text-p text-left text-light">{{ shop.name }}</span>
+        {%- endif -%}
+    </a>
+
+    <a href="{{ routes.root_url }}" class="logo-dark mr-32 md:mr-56 h-auto max-sm:max-w-100 flex self-stretch items-center"
+       style="width: {{ logo_width_rem }}rem">
+        {%- if logo_dark != blank -%}
+            {% assign logo_alt = logo_dark.alt | default: shop.name | escape %}
+            <picture>
+                <source srcset="{{ logo_dark | image_url: width: logo_width }} 1x,
+                                {{ logo_dark | image_url: width: logo_width_2x }} 2x">
+                {{ logo_dark | image_url: width: logo_width | image_tag:
+                width: logo_width,
+                height: logo_dark.height,
+                class: "w-full object-scale-down",
+                alt: logo_alt
+                }}
+            </picture>
+        {%- else -%}
+            <span class="text-p text-left text-dark">{{ shop.name }}</span>
+        {%- endif -%}
+    </a>
+    {%- if request.page_type == 'index' and show_bg != true -%}
+</h1>
+{%- endif -%}

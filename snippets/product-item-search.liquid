@@ -1,0 +1,53 @@
+<li {{ add_classes }}
+        role="option"
+        aria-selected="false">
+    <a href="{{ product.url }}"
+       class="flex py-16"
+       tabindex="-1">
+        <div class="mr-16 flex-shrink-0">
+            {%- if product.featured_media != blank -%}
+                <picture>
+                    <source data-srcset="{{ product.featured_media | image_url: width: 70, height: 70, crop: "center" }},
+                                    {{ product.featured_media | image_url: width: 140, height: 140, crop: "center" }} 2x"/>
+                    <img data-src="{{ product.featured_media | image_url: width: 70, height: 70, crop: "center" }}"
+                         alt="{{ product.featured_media.alt | default: product.title | escape }}"
+                         width="70"
+                         height="70"
+                         class="lazyload">
+                </picture>
+            {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'block bg-dark-10 w-70 h-70' }}
+            {%- endif -%}
+        </div>
+        <div class="w-full flex justify-between max-sm:flex-col">
+            <div>
+                <h3 class="max-sm:text-p-small font-bold">{{ product.title }}</h3>
+                {%- if settings.predictive_search_show_vendor -%}
+                    <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span>
+                    <p class="text-caption text-dark-subdued">{{ product.vendor }}</p>
+                {%- endif -%}
+            </div>
+            <div class="flex max-sm:flex-row-reverse md:flex-col max-sm:justify-between items-end">
+                {%- if settings.predictive_search_show_price -%}
+                    <div>
+                        <p class="font-bold">{{ product.price | money_with_currency }}</p>
+                    </div>
+                    <div class="mt-auto flex items-center{% if product.available %} text-positive{% else %} text-dark-60{% endif %}">
+                        {% if product.available %}
+                            {% render 'icon-checkmark-circle', class: "w-16 h-16 mr-4" %}
+                        {% else %}
+                            {% render 'icon-close-circle', class: "w-16 h-16 mr-4" %}
+                        {% endif %}
+                        <span class="text-p-small">
+                            {% if product.available %}
+                                {{ 'products.product.on_stock' | t }}
+                            {% else %}
+                                {{ 'products.product.out_of_stock' | t }}
+                            {% endif %}
+                        </span>
+                    </div>
+                {%- endif -%}
+            </div>
+        </div>
+    </a>
+</li>

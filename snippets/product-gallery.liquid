@@ -1,0 +1,282 @@
+{% liquid
+    assign media_size = product.media | size
+    assign selected_or_first_available = product.selected_or_first_available_variant.featured_media
+    assign img_classes = "h-320 md:h-485 lg:h-688 w-full object-cover"
+
+    assign featured_product = featured_product | default: false
+    assign is_slider = false
+    assign is_left_thumb = false
+
+    if tp == "left_slider" or tp == "bottom"
+        assign is_slider = true
+    endif
+
+    if tp == "left_slider" or tp == "left_scrollable"
+        assign is_left_thumb = true
+    endif
+%}
+<div class="relative max-xs:-mx-20 max-md:mb-16 h-full">
+    {% if media_size != 0 and media_size > 1 %}
+        <div{% if is_slider and featured_product == false %} data-generic-slider="product-gallery-{{ product.id }}"
+            data-num-slides="{{ media_size }}"{% endif %}
+                class="max-md:hidden flex gap-16 h-full{% if tp == "bottom" %} flex-col{% endif %}">
+            {% if media_size > 1 %}
+                {% if featured_product == false %}
+                    <div class="max-md:hidden flex-shrink-0{% if tp == "left_slider" or tp == "left_scrollable" %} w-80{% else %} w-full order-1{% endif %}">
+                        <ul class="glide__bullets flex gap-16 {% if tp == "left_slider" or tp == "left_scrollable" %} flex-col{% endif %}"
+                            data-glide-el="controls[nav]">
+                            {% liquid
+                                assign product_media_size = product.media | size
+                                if product_media_size > 6 and selected_or_first_available == null
+                                    assign size_limit = 5
+                                elsif product_media_size > 6 and selected_or_first_available != null
+                                    assign size_limit = 4
+                                endif
+                            %}
+                            {%- if selected_or_first_available != null -%}
+                                {% assign num = 1 %}
+                                <li class="glide__bullet"{% if is_slider %} data-glide-dir="=0"{% else %} data-slide-id="0" data-bs-toggle="modal" data-bs-target="#product-detail-modal"{% endif %}>
+                                    <div>
+                                        {% render "product-gallery-thumbnail", media: selected_or_first_available, is_left_thumb: is_left_thumb %}
+                                    </div>
+                                </li>
+                                {%- for media in product.media limit: size_limit -%}
+                                    {%- unless media.id == selected_or_first_available.id -%}
+                                        <li class="glide__bullet"{% if is_slider %} data-glide-dir="={{ num }}"{% else %} data-slide-id="{{ num }}" data-bs-toggle="modal" data-bs-target="#product-detail-modal"{% endif %}>
+                                            <div data-nav-slide-id="={{ num }}">
+                                                {% render "product-gallery-thumbnail", media: media, is_left_thumb: is_left_thumb %}
+                                            </div>
+                                        </li>
+                                        {% assign num = num | plus: 1 %}
+                                    {% endunless %}
+                                {% endfor %}
+                            {% else %}
+                                {% assign num = 0 %}
+                                {%- for media in product.media limit: size_limit -%}
+                                    <li class="glide__bullet"{% if is_slider %} data-glide-dir="={{ num }}"{% else %} data-slide-id="{{ num }}" data-bs-toggle="modal" data-bs-target="#product-detail-modal"{% endif %}>
+                                        <div data-nav-slide-id="={{ num }}">
+                                            {% render "product-gallery-thumbnail", media: media, is_left_thumb: is_left_thumb %}
+                                        </div>
+                                    </li>
+                                    {% assign num = num | plus: 1 %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if product_media_size > 6 %}
+                                <li class="w-full border border-light-material transition-colors hover:border-brand-alpha-250">
+                                    <div class="h-80 flex-center text-center cursor-pointer inset-0"
+                                         data-bs-toggle="modal"
+                                         data-bs-target="#product-detail-modal">
+                                        <p class="text-p-large">
+                                            +{{ product_media_size | minus: 5 }}
+                                        </p>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div data-glide-el="track"
+                     class="{% if is_slider %}glide__track overflow-hidden {% else %}w-full relative overflow-y-auto scrollbar-hide{% endif %}{% unless tp == "bottom" %} h-full{% endunless %}">
+                    <ul class="{% if is_slider %}glide__slides lg:h-688 items-center{% else %}absolute top-0 left-0 w-full h-full flex flex-col gap-16{% endif %}">
+                        {% if featured_product == true %}
+                            {%- for media in product.media limit: 1 -%}
+                                <li class="{% if is_slider %}glide__slide h-full{% else %}lg:h-688{% endif %}{% if featured_product == false %} cursor-pointer{% endif %}">
+                                    {% render "product-gallery-item", media: media, classes: img_classes %}
+                                </li>
+                            {% endfor %}
+                            <p>TRUE</p>
+                        {% else %}
+                            {%- if selected_or_first_available != null -%}
+                                {% liquid
+                                    assign num = 1
+                                %}
+                                <li class="{% if is_slider %}glide__slide h-full{% else %}lg:h-688{% endif %}{% if featured_product == false %} cursor-pointer{% endif %}"
+                                        {% if selected_or_first_available.media_type == "image" and featured_product == false %}
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#product-detail-modal"
+                                            data-slide-id="0"
+                                        {% endif %}
+                                >
+                                    {% render "product-gallery-item", media: selected_or_first_available, classes: img_classes %}
+                                </li>
+                                {%- for media in product.media -%}
+                                    {% unless media.id == selected_or_first_available.id %}
+                                        <li class="{% if is_slider %}glide__slide h-full{% else %}lg:h-688{% endif %}{% if featured_product == false %} cursor-pointer{% endif %}"
+                                                {% if media.media_type == "image" and featured_product == false %}
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#product-detail-modal"
+                                                    data-slide-id="{{ num }}"
+                                                {% endif %}
+                                        >
+                                            {% render "product-gallery-item", media: media, classes: img_classes %}
+                                        </li>
+                                        {% assign num = num | plus: 1 %}
+                                    {% endunless %}
+                                {% endfor %}
+                            {% else %}
+                                {% assign num = 0 %}
+                                {%- for media in product.media -%}
+                                    <li class="{% if is_slider %}glide__slide h-full{% else %}lg:h-688{% endif %}{% if featured_product == false %} cursor-pointer{% endif %}"
+                                            {% if media.media_type == "image" and featured_product == false %}
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#product-detail-modal"
+                                                data-slide-id="{{ num }}"
+                                            {% endif %}
+                                    >
+                                        {% render "product-gallery-item", media: media, classes: img_classes %}
+                                    </li>
+                                    {% assign num = num | plus: 1 %}
+                                {% endfor %}
+                            {%- endif -%}
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% if media_size > 1 and featured_product == false %}
+                <div class="lg:hidden w-full absolute bottom-0 left-0 px-20 py-8 gallery-mobile-bullets">
+                    <ul class="flex rounded-md -mb-10" data-glide-el="controls[nav]">
+                        {% for media in product.media %}
+                            <li data-glide-dir="={{ forloop.index0 }}"
+                                class="glide__bullet w-full py-20">
+                                <div class="h-4"></div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+
+        {% comment %}Mobile version{% endcomment %}
+        <div data-generic-slider="product-gallery-{{ product.id }}"
+             data-num-slides="{{ media_size }}"
+             class="lg:hidden">
+            {% if media_size > 1 %}
+                <div data-glide-el="track" class="glide__track h-full overflow-hidden">
+                    <ul class="glide__slides lg:h-688 items-center">
+                        {%- if selected_or_first_available != null -%}
+                            <li class="glide__slide h-full cursor-pointer"
+                                    {% if selected_or_first_available.media_type == "image" and selected_or_first_available == false %}
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#product-detail-modal"
+                                    {% endif %}
+                            >
+                                {% render "product-gallery-item", media: selected_or_first_available, classes: img_classes %}
+                            </li>
+                            {%- for media in product.media -%}
+                                {%- unless media.id == selected_or_first_available.id -%}
+                                    <li class="glide__slide h-full cursor-pointer"
+                                            {% if media.media_type == "image" and featured_product == false %}
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#product-detail-modal"
+                                            {% endif %}
+                                    >
+                                        {% render "product-gallery-item", media: media, classes: img_classes, forloop_index: forloop.index %}
+                                    </li>
+                                {% endunless %}
+                            {% endfor %}
+                        {% else %}
+                            {%- for media in product.media -%}
+                                <li class="glide__slide h-full cursor-pointer"
+                                        {% if media.media_type == "image" and featured_product == false %}
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#product-detail-modal"
+                                        {% endif %}
+                                >
+                                    {% render "product-gallery-item", media: media, classes: img_classes, forloop_index: forloop.index %}
+                                </li>
+                            {% endfor %}
+                        {%- endif -%}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {% if media_size > 1 %}
+                <div class="w-full absolute bottom-0 left-0 px-20 py-8 gallery-mobile-bullets">
+                    <ul class="flex rounded-md -mb-10" data-glide-el="controls[nav]">
+                        {% for media in product.media %}
+                            <li data-glide-dir="={{ forloop.index0 }}"
+                                class="glide__bullet w-full py-20">
+                                <div class="h-4"></div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+
+        {%- if first_3d_model -%}
+            <button class="button button--full-width product__xr-button"
+                    type="button"
+                    aria-label="{{ 'products.product.xr_button_label' | t }}"
+                    data-shopify-xr
+                    data-shopify-model3d-id="{{ first_3d_model.id }}"
+                    data-shopify-title="{{ product.title | escape }}"
+                    data-shopify-xr-hidden
+            >
+                {% render 'icon-3d-model' %}
+                {{ 'products.product.xr_button' | t }}
+            </button>
+        {%- endif -%}
+    {% elsif media_size == 0 %}
+        {{ 'product-1' | placeholder_svg_tag: 'bg-dark-10 lg:h-688 w-full object-cover' }}
+    {% else %}
+        {%- if selected_or_first_available != null -%}
+            {%- assign featured_media = selected_or_first_available -%}
+            <div {% if featured_media.media_type == "image" and featured_product == false %}
+                class="cursor-pointer"
+                data-bs-toggle="modal"
+                data-bs-target="#product-detail-modal"
+            {% endif %}
+            >
+                {% render "product-gallery-item", media: featured_media, classes: img_classes %}
+            </div>
+            {%- for media in product.media -%}
+                {%- unless media.id == selected_or_first_available.id -%}
+                    <div {% if media.media_type == "image" and featured_product == false %}
+                        class="cursor-pointer"
+                        data-bs-toggle="modal"
+                        data-bs-target="#product-detail-modal"
+                    {% endif %}
+                    >
+                        {% render "product-gallery-item", media: media, classes: img_classes %}
+                    </div>
+                {% endunless %}
+            {% endfor %}
+        {% else %}
+            {%- for media in product.media -%}
+                <div {% if media.media_type == "image" and featured_product == false %}
+                    class="cursor-pointer"
+                    data-bs-toggle="modal"
+                    data-bs-target="#product-detail-modal"
+                {% endif %}
+                >
+                    {% render "product-gallery-item", media: media, classes: img_classes %}
+                </div>
+            {% endfor %}
+        {%- endif -%}
+
+    {% endif %}
+</div>
+{% render "product-gallery-modal" %}
+<script>
+    window.glide_options = window.glide_options || {};
+    window.glide_options['product-gallery-{{ product.id }}'] = {
+        type: 'carousel',
+        bound: true,
+        perView: 1,
+        swipeThreshold: false,
+        dragThreshold: false,
+        gap: 0,
+        breakpoints: {
+            991: {
+                swipeThreshold: 80,
+                dragThreshold: 120,
+                animationDuration: 400
+            }
+        }
+    };
+
+    window.use_zoom_in_gallery = true;
+</script>

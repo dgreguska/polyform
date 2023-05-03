@@ -1,0 +1,77 @@
+<div class="flex gap-8 items-center justify-between flex-wrap">
+    {% liquid
+        assign old_price = product.compare_at_price
+        assign price = product.price | default: 1999
+        assign num = old_price | minus: price
+        assign sale_percentage = num | times: 100 | divided_by: old_price
+    %}
+    <div class="flex items-center">
+        <div class="flex items-baseline">
+            <p class="h4 whitespace-nowrap font-body">
+                {% liquid
+                    assign price = product.price | default: 1999
+                    assign money_price = price | money
+                    if settings.currency_code_enabled
+                        assign money_price = price | money_with_currency
+                    endif
+                    if product.price_varies
+                        assign money_price = 'products.product.price.from_price_html' | t: price: money_price
+                    endif
+                %}
+                {{ money_price }}
+            </p>
+            {% if old_price and old_price != price %}
+                <p class="ml-8 text-light-subdued">
+                    <s>
+                        {% if settings.currency_code_enabled %}
+                            {{ old_price | money_with_currency }}
+                        {% else %}
+                            {{ old_price | money }}
+                        {% endif %}
+                    </s>
+                </p>
+            {% endif %}
+        </div>
+        {% if old_price and old_price != price %}
+            <p class="ml-8 text-caption text-light bg-dark px-8 py-4">
+                save {{ sale_percentage }}%
+            </p>
+        {% endif %}
+    </div>
+
+    {%- if shop.taxes_included or shop.shipping_policy.body != blank -%}
+        <div class="text-p-small text-dark-material">
+
+            {%- if shop.taxes_included -%}
+                {{ 'products.product.include_taxes' | t }}
+            {%- endif -%}
+            {%- if shop.shipping_policy.body != blank -%}
+                {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+            {%- endif -%}
+        </div>
+    {%- endif -%}
+</div>
+<small class="block mt-8 uppercase text-caption{% if product.selected_or_first_available_variant.unit_price_measurement == nil %} hidden{% endif %}">
+    <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>
+    <span>
+        <span>{{- product.selected_or_first_available_variant.unit_price | money -}}</span>
+        <span aria-hidden="true">/</span>
+        <span class="visually-hidden">&nbsp;{{ 'accessibility.unit_price_separator' | t }}&nbsp;</span>
+        <span>
+          {%- if product.selected_or_first_available_variant.unit_price_measurement.reference_value != 1 -%}
+              {{- product.selected_or_first_available_variant.unit_price_measurement.reference_value -}}
+          {%- endif -%}
+            {{ product.selected_or_first_available_variant.unit_price_measurement.reference_unit }}
+        </span>
+      </span>
+</small>
+{% if product != blank %}
+    <div>
+        {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
+        {%- form 'product', product, id: product_form_installment_id, class: 'installment caption-large' -%}
+            <input type="hidden" name="id"
+                   value="{{ product.selected_or_first_available_variant.id }}">
+            {{ form | payment_terms }}
+        {%- endform -%}
+    </div>
+{% endif %}

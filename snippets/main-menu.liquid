@@ -1,0 +1,49 @@
+<nav class="{% if menu == "menu_1" %}max-sm:hidden w-full mt-4 order-1 relative{% else %}js-header-hide max-md:hidden transition-all duration-300 ease-in-out{% endif %}"
+     aria-label="main-menu">
+    <div class="container">
+        <ul class="flex items-center -mx-16 text-p-small">
+            {%- for link in links -%}
+                {% liquid
+                    assign link_classes = ""
+                    if link.links != blank
+                        assign link_classes = link_classes | append: "group rounded-b-none"
+                    endif
+                %}
+                <li class="main-menu-item {% if link_classes != blank %}{{ link_classes }}{% endif %} {% if menu == "menu_2" %}h-48 flex-center{% endif %}">
+
+                    {{ link.title | link_to: link.url, link.title, class: "flex px-16 py-8 font-semibold" }}
+
+                    {%- if link.links != blank -%}
+                        <div class="absolute w-full top-full left-0 bg-light opacity-0 invisible z-20 group-hover:opacity-100 group-hover:visible shadow clip-path-top">
+                            <div class="container text-dark">
+                                <ul class="py-40 grid grid-cols-5 gap-y-32 gap-x-20 max-h-screen overflow-y-auto overflow-x-hidden custom-scrollbar">
+                                    {%- for childlink in link.links -%}
+                                        <li>
+                                            {% capture linkClasses %}block pb-24 mb-20 font-bold border-b border-light-material -mx-16 px-16{% endcapture %}
+                                            {% if childlink.url != blank and childlink.url != "#" %}
+                                                {{ childlink.title | link_to: childlink.url, childlink.title, class: linkClasses }}
+                                            {% else %}
+                                                <div class="{{ linkClasses }}">
+                                                    {{ childlink.title }}
+                                                </div>
+                                            {% endif %}
+                                            {%- if childlink.links != blank -%}
+                                                <ul>
+                                                    {%- for grandchildlink in childlink.links -%}
+                                                        <li>
+                                                            {{ grandchildlink.title | link_to: grandchildlink.url, grandchildlink.title, class: "py-4 hover-underline-animation" }}
+                                                        </li>
+                                                    {%- endfor -%}
+                                                </ul>
+                                            {%- endif -%}
+                                        </li>
+                                    {%- endfor -%}
+                                </ul>
+                            </div>
+                        </div>
+                    {%- endif -%}
+                </li>
+            {%- endfor -%}
+        </ul>
+    </div>
+</nav>

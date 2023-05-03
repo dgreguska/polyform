@@ -1,0 +1,77 @@
+{%- if cart != empty -%}
+    {%- for item in cart.items -%}
+        <div id="cart-notification-product-{{ item.key }}">
+            <div class="p-8 md:p-16 border border-light-material rounded-md relative">
+                <div class="flex">
+                    <div class="block w-72 h-72 md:w-96 md:h-96 flex-shrink-0 mr-18 flex-shrink-0">
+                        {%- if item.image -%}
+                            <picture>
+                                <source media="(max-width: 768px)"
+                                        srcset="{{ item.image | image_url: width: 72, height: 72, crop: "center" }},
+                                    {{ item.image | image_url: width: 144, height: 144, crop: "center" }} 2x"/>
+                                <source media="(min-width: 769px)"
+                                        srcset="{{ item.image | image_url: width: 96, height: 96, crop: "center" }},
+                                    {{ item.image | image_url: width: 192, height: 192, crop: "center" }} 2x"/>
+                                {% liquid
+                                    if item.image.alt != blank
+                                        assign image_alt = item.image.alt
+                                    else
+                                        assign image_alt = item.product.title
+                                    endif
+                                %}
+                                {{ item.image | image_url: width: 96, height: 96, crop: "center" | image_tag:
+                                width: 96,
+                                height: 96,
+                                class: 'w-full h-full object-cover',
+                                alt: image_alt }}
+                            </picture>
+                        {% else %}
+                            {{ "product-1" | placeholder_svg_tag: "bg-dark-10 w-full h-full object-cover" }}
+                        {%- endif -%}
+                    </div>
+                    <div class="flex w-full justify-between">
+                        <div>
+                            <h3 class="max-sm:text-p-small font-bold leading-tight">{{ item.product.title | escape }}</h3>
+                            <div class="text-caption text-dark-subdued">
+                                <dl>
+                                    {%- unless item.product.has_only_default_variant -%}
+                                        {%- for option in item.options_with_values -%}
+                                            <div>
+                                                <dd>{{ option.value }}</dd>
+                                            </div>
+                                        {%- endfor -%}
+                                    {%- endunless -%}
+                                    {%- for property in item.properties -%}
+                                        {%- assign property_first_char = property.first | slice: 0 -%}
+                                        {%- if property.last != blank and property_first_char != '_' -%}
+                                            <div>
+                                                <dt>{{ property.first }}:</dt>
+                                                <dd>
+                                                    {%- if property.last contains '/uploads/' -%}
+                                                        <a href="{{ property.last }}" class="link" target="_blank">
+                                                            {{ property.last | split: '/' | last }}
+                                                        </a>
+                                                    {%- else -%}
+                                                        {{ property.last }}
+                                                    {%- endif -%}
+                                                </dd>
+                                            </div>
+                                        {%- endif -%}
+                                    {%- endfor -%}
+                                </dl>
+                                {%- if item.selling_plan_allocation != nil -%}
+                                    <p>{{ item.selling_plan_allocation.selling_plan.name }}</p>
+                                {%- endif -%}
+                            </div>
+                        </div>
+                        <div class="ml-12 flex flex-col justify-between">
+                            <p class="text-p-large">
+                                {{ item.price | money }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {%- endfor -%}
+{%- endif -%}

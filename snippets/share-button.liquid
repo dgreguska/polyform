@@ -1,0 +1,50 @@
+{% comment %}
+  Renders share button.
+  Accepts:
+  - block: {Object} passes in the block information.
+  - share_link: {String} url to be added to the input the user will get/copy.
+
+  Usage:
+  {% render 'share-button',
+    block: block,
+    share_link: share_url
+  %}
+{% endcomment %}
+<link rel="stylesheet" href="{{ 'component-share-button.css' | asset_url }}">
+<script src="{{ 'share.js' | asset_url }}" defer="defer"></script>
+
+<share-button id="Share-{{ section.id }}"
+              class="share-button quick-add-hidden block mt-16" {{ block.shopify_attributes }}>
+    <button class="share-button__button hidden mt-8 btn btn-outline w-full" type="button">
+        {% render 'icon-share', class: "w-16 h-16 mr-8" %}
+        {{ block.settings.share_label | escape }}
+    </button>
+    <details id="Details-{{ block.id }}-{{ section.id }}" class="w-full relative">
+        <summary class="share-button__button btn btn-outline w-full">
+            {% render 'icon-share', class: "w-16 h-16 mr-8" %}
+            {{ block.settings.share_label | escape }}
+        </summary>
+        <div class="share-button__fallback min-w-300 flex items-center absolute top-full -mt-1 max-sm:left-0 md:right-0 w-full p-16 bg-light border border-light-material">
+            <div class="relative w-full flex">
+                <span id="ShareMessage-{{ section.id }}" class="share-button__message hidden" role="status"></span>
+                <input type="text"
+                       class="input overflow-ellipsis"
+                       id="ShareUrl-{{ section.id }}"
+                       value="{{ share_link }}"
+                       placeholder="{{ 'general.share.share_url' | t }}"
+                       onclick="this.select();"
+                       readonly
+                >
+                <label for="ShareUrl-{{ section.id }}">{{ 'general.share.share_url' | t }}</label>
+                <button class="share-button__copy ml-8">
+                    {% render 'icon-clipboard' %}
+                    <span class="visually-hidden">{{ 'general.share.copy_to_clipboard' | t }}</span>
+                </button>
+            </div>
+            <button class="share-button__close hidden">
+                {% render 'icon-close', class: "absolute top-8 right-8 w-24 h-24" %}
+                <span class="visually-hidden">{{ 'general.share.close' | t }}</span>
+            </button>
+        </div>
+    </details>
+</share-button>

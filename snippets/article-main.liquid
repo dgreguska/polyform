@@ -1,0 +1,64 @@
+<div class="row items-center max-md:flex-col-reverse">
+    <div class="max-md:mt-24 w-full lg:w-1/2">
+        <div class="max-sm:container">
+            <ul class="-mx-4 -my-2 flex items-center flex-wrap">
+                {% assign tags_size = article.tags | size %}
+                {% if tags_size > 0 %}
+                    {% for tag in article.tags %}
+                        <li class="px-4 py-2">
+                            <span class="inline-block px-8 py-2 bg-dark-10 text-caption rounded-full">{{ tag }}</span>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+                <li class="px-4 py-2">
+                    <div class="py-2 text-caption text-dark-subdued">{{ article.published_at | time_tag: format: 'date' }}</div>
+                </li>
+            </ul>
+            <h2 class="mt-16 h3">
+                <a href="{{ article.url }}"
+                   class="line-clamp-3 hover-underline-animation"
+                   title="{{ article.title | escape }}">
+                    {{ article.title | escape }}
+                </a>
+            </h2>
+            <p class="mt-16 text-p-small text-dark-subdued line-clamp-3">
+                {{ article.excerpt_or_content | strip_html }}
+            </p>
+            <a href="{{ article.url }}" class="mt-24 btn btn-primary"
+               title="{{ article.title | truncate: 50 | escape }}">
+                {{ 'blogs.article.read' | t }}
+            </a>
+        </div>
+    </div>
+    <div class="w-full lg:w-1/2">
+        <a href="{{ article.url }}" class="group block w-full h-250 md:h-300 lg:h-450 bg-light-material lg:rounded-md overflow-hidden">
+            {% if article.image %}
+                <picture>
+                    <source media="(min-width: 720px)"
+                            data-srcset="{{ article.image.src | image_url: width: 720 }},
+                                    {{ article.image.src | image_url: width: 1400 }} 2x"/>
+                    <source media="(min-width: 533px)"
+                            data-srcset="{{ article.image.src | image_url: width: 533 }},
+                                    {{ article.image.src | image_url: width: 1066 }} 2x"/>
+                    <source media="(min-width: 360px)"
+                            data-srcset="{{ article.image.src | image_url: width: 360 }},
+                                    {{ article.image.src | image_url: width: 720 }} 2x"/>
+                    <source media="(min-width: 165px)"
+                            data-srcset="{{ article.image.src | image_url: width: 250 }},
+                                    {{ article.image.src | image_url: width: 330 }} 2x"/>
+                    {% liquid
+                        if article.image.src.alt != blank
+                            assign image_alt = article.image.src.alt
+                        else
+                            assign image_alt = article.title
+                        endif
+                    %}
+                    <img data-src="{{ article.image | image_url: width: 720 }}" alt="{{ image_alt }}" width="720"
+                         class="lazyload w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                </picture>
+            {% else %}
+                {{ 'image' | placeholder_svg_tag: 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-110' }}
+            {% endif %}
+        </a>
+    </div>
+</div>

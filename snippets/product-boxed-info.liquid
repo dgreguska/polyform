@@ -1,0 +1,29 @@
+{% assign current_variant = product.selected_or_first_available_variant %}
+{% if current_variant %}
+    <div class="mt-24 p-16 border border-light-material">
+        {% render 'product-stock-state', current_variant: current_variant %}
+
+        {{ 'component-pickup-availability.css' | asset_url | stylesheet_tag }}
+        {%- assign pick_up_availabilities = product.selected_or_first_available_variant.store_availabilities | where: 'pick_up_enabled', true -%}
+        <pickup-availability
+                {% if product.selected_or_first_available_variant.available and pick_up_availabilities.size > 0 %}
+                    class="block pt-16 mt-16 border-t border-light-material"
+                    available
+                {% endif %}
+                data-root-url="{{ routes.root_url }}"
+                data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+                data-has-only-default-variant="{{ product.has_only_default_variant }}"
+        >
+            <template>
+                <pickup-availability-preview class="pickup-availability-preview flex gap-8">
+                    {% render 'icon-unavailable', class: "w-20 h-20 flex-shrink-0" %}
+                    <div class="pickup-availability-info">
+                        <p class="text-p-large">{{ 'products.product.pickup_availability.unavailable' | t }}</p>
+                        <button class="p-6 underline cursor-pointer">{{ 'products.product.pickup_availability.refresh' | t }}</button>
+                    </div>
+                </pickup-availability-preview>
+            </template>
+        </pickup-availability>
+        <script src="{{ 'pickup-availability.js' | asset_url }}" defer="defer"></script>
+    </div>
+{% endif %}

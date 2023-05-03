@@ -1,0 +1,120 @@
+<div class="cart-hide-when-empty mb-64 container{% if cart == empty %} is-empty{% endif %}" id="main-cart-footer"
+     data-id="{{ section.id }}">
+    <div class="lg:w-10/12 mx-auto">
+        <div class="p-16 md:p-24 bg-light-surface border border-light-material rounded-md">
+            <div class="row">
+                {%- if settings.show_cart_note -%}
+                    <div class="w-full md:w-5/12 max-sm:mb-16">
+                        <cart-note class="relative block">
+                            <textarea class="input h-auto" rows="2" name="note" form="cart" id="Cart-note"
+                                      placeholder="{{ 'sections.cart.note' | t }}">{{ cart.note }}</textarea>
+                            <label for="Cart-note">{{ 'sections.cart.note' | t }}</label>
+                        </cart-note>
+                    </div>
+                {%- endif -%}
+                <div class="w-full md:w-5/12 md:ml-auto">
+                    {% for block in section.blocks %}
+                        {%- case block.type -%}
+                            {%- when '@app' -%}
+                                {% render block %}
+                            {%- when 'subtotal' -%}
+                                <div class="js-contents" {{ block.shopify_attributes }}>
+                                    {%- if cart.cart_level_discount_applications.size > 0 -%}
+                                        <div class="mb-12">
+                                            <ul class="text-p-small text-brand" role="list"
+                                                aria-label="{{ 'customer.order.discount' | t }}">
+                                                {%- for discount in cart.cart_level_discount_applications -%}
+                                                    <li class="flex items-center">
+                                                        {% render "icon-pricetag", class: "w-20 h-20 mr-8" %}
+                                                        <p class="font-bold">
+                                                            {{ discount.title }}
+                                                            <span class="whitespace-nowrap">(-{{ discount.total_allocated_amount | money }})</span>
+                                                        </p>
+                                                    </li>
+                                                {%- endfor -%}
+                                            </ul>
+                                        </div>
+                                    {%- endif -%}
+
+                                    <div class="mb-16 pb-16 border-b border-light-material">
+                                        <p class="text-p-small">
+                                            {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                                                {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                                            {%- elsif cart.taxes_included -%}
+                                                {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+                                            {%- elsif shop.shipping_policy.body != blank -%}
+                                                {{ 'sections.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+                                            {%- else -%}
+                                                {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+                                            {%- endif -%}
+                                        </p>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="w-1/2">
+                                            <h2>{{ 'sections.cart.subtotal' | t }}</h2>
+                                        </div>
+                                        <div class="w-1/2 text-right whitespace-nowrap">
+                                            <p class="text-p-large font-bold">{{ cart.total_price | money_with_currency }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                        {%- endcase -%}
+                    {% endfor %}
+                    <div id="cart-errors" class="text-brand font-bold"></div>
+                </div>
+            </div>
+        </div>
+        <div class="py-24 flex max-sm:flex-col-reverse items-center">
+            <a href="{{ routes.all_products_collection_url }}"
+               class="group max-sm:mt-24 inline-flex items-center text-p-small text-dark-subdued">
+                {% render "icon-left-arrow", class: "mr-4 w-16 h-16" %}
+                <span class="transition-transform group-hover:translate-x-4">{{ 'general.continue_shopping' | t }}</span>
+            </a>
+
+            <div class="md:ml-auto max-sm:w-full">
+                <div class="flex max-sm:flex-col items-center">
+                    <noscript>
+                        <button type="submit" class="btn btn-large" form="cart">
+                            {{ 'sections.cart.update' | t }}
+                        </button>
+                    </noscript>
+
+                    <form action="{{ routes.cart_url }}" method="post" id="cart-footer-form" class="max-sm:w-full">
+                        <button type="submit" id="checkout" class="max-sm:w-full btn-primary btn btn-large uppercase"
+                                name="checkout"{% if cart == empty %} disabled{% endif %}>
+                            {{ 'sections.cart.checkout' | t }}
+                        </button>
+                    </form>
+                </div>
+
+                {%- if additional_checkout_buttons -%}
+                    <div>
+                        {{ content_for_additional_checkout_buttons }}
+                    </div>
+                {%- endif -%}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main-cart-footer.name",
+  "blocks": [
+    {
+      "type": "subtotal",
+      "name": "t:sections.main-cart-footer.blocks.subtotal.name",
+      "limit": 1
+    },
+    {
+      "type": "buttons",
+      "name": "t:sections.main-cart-footer.blocks.buttons.name",
+      "limit": 1
+    },
+    {
+      "type": "@app"
+    }
+  ]
+}
+{% endschema %}

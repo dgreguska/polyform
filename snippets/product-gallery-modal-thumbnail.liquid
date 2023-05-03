@@ -1,0 +1,14 @@
+<li data-slide-id="{{ forloop-index }}"
+    class="w-70 h-70 flex-shrink-0 js-gallery-thumbnail">
+    <div class="glide-image h-full cursor-pointer thumbnail relative transition-colors hover:thumb-active">
+        <picture>
+            <source data-srcset="{{ image | image_url: width: 70, height: 70, crop: 'center' }},
+                                {{ image | image_url: width: 140, height: 140, crop: 'center' }} 2x"/>
+            <img data-src="{{ image | image_url: width: 70, height: 70, crop: 'center' }}"
+                 alt="{{ image.alt }}"
+                 width="70"
+                 height="70"
+                 class="lazyload mx-auto h-full object-cover">
+        </picture>
+    </div>
+</li>

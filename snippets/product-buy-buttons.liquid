@@ -1,0 +1,40 @@
+<div class="mt-32" {{ block.shopify_attributes }}>
+    {%- if product != blank -%}
+        <product-form class="h-full" data-cart-type="{{ settings.cart_type }}">
+            {%- form 'product', product, class: 'h-full', id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+                <input type="hidden" name="id"
+                       value="{{ product.selected_or_first_available_variant.id }}"
+                       disabled>
+                <button type="submit"
+                        name="add"
+                        class="btn btn-primary btn-large w-full h-full uppercase"
+                        {% if quick_view %}data-bs-dismiss="modal"{% endif %}
+                    {% if product.selected_or_first_available_variant.available == false %}disabled{% endif %}
+                >
+                <span>
+                    {%- if product.selected_or_first_available_variant.available -%}
+                        {{ 'products.product.add_to_cart' | t }}
+                    {%- else -%}
+                        {{ 'products.product.sold_out' | t }}
+                    {%- endif -%}
+                  </span>
+                </button>
+                {%- if block.settings.show_dynamic_checkout -%}
+                    {{ form | payment_button }}
+                {%- endif -%}
+            {%- endform -%}
+        </product-form>
+    {%- else -%}
+        <div class="product-form">
+            <div class="form">
+                <button type="submit"
+                        name="add"
+                        class="btn btn-primary btn-large w-full h-full font-semibold uppercase"
+                        disabled
+                >
+                    {{ 'products.product.sold_out' | t }}
+                </button>
+            </div>
+        </div>
+    {%- endif -%}
+</div>

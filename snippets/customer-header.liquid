@@ -1,0 +1,13 @@
+<header class="flex items-center mb-40 md:mb-48 py-32 md:py-48 border-b border-light-material">
+    <div class="flex justify-center items-center mr-16 max-sm:w-56 w-80 max-sm:h-56 h-80 bg-light-material rounded-full">
+        <span class="block text-light max-sm:text-h4 text-display-subtitle text-uppercase font-bold">
+            {{ customer.first_name | slice: 0 }}{{ customer.last_name | slice: 0 }}
+        </span>
+    </div>
+    <div>
+        <h1 class="max-sm:text-h4 text-display-subtitle font-bold">
+            {{ customer.first_name }} {{ customer.last_name }}
+        </h1>
+        {{ 'customer.log_out' | t | link_to: routes.account_logout_url, class: "inline-block mt-8 max-sm:text-p-small text-dark-subdued hover:underline" }}
+    </div>
+</header>

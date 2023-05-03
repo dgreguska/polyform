@@ -1,0 +1,47 @@
+pickup-availability-drawer {
+    z-index: 4;
+    transition: opacity .2s ease, transform .2s ease;
+}
+
+pickup-availability-drawer[open] {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+@media screen and (min-width: 750px) {
+    pickup-availability-drawer {
+        transform: translateX(100%);
+    }
+
+    pickup-availability-drawer[open] {
+        opacity: 1;
+        transform: translateX(0);
+        animation: animateDrawerOpen .2s ease;
+    }
+}
+
+@keyframes animateDrawerOpen {
+    @media screen and (max-width: 749px) {
+        0% {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @media screen and (min-width: 750px) {
+        0% {
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+}

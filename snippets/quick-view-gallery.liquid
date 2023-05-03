@@ -1,0 +1,64 @@
+<div class="relative max-xs:-mx-20 max-md:mb-16">
+    {% assign media_size = product.media | size %}
+    {% if media_size != 0 %}
+        <div data-generic-slider="product-gallery-modal-{{ product.id }}"
+             data-num-slides="{{ media_size }}">
+            {% assign selected_or_first_available = product.selected_or_first_available_variant.featured_media %}
+            <div data-glide-el="track" class="glide__track h-full overflow-hidden">
+                <ul class="glide__slides lg:h-600 items-center">
+                    {%- if selected_or_first_available != null -%}
+                        {%- assign featured_media = selected_or_first_available -%}
+                        <li class="glide__slide h-full">
+                            {% render "product-gallery-item", media: featured_media, classes: "h-full w-full object-cover", is_quickview: true %}
+                        </li>
+                    {%- endif -%}
+                    {%- for media in product.media -%}
+                        {%- unless media.id == product.selected_or_first_available.id -%}
+                            <li class="glide__slide h-full">
+                                {% render "product-gallery-item", media: media, classes: "h-full w-full object-cover", is_quickview: true %}
+                            </li>
+                        {% endunless %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        {%- if first_3d_model -%}
+            <button class="button button--full-width product__xr-button"
+                    type="button"
+                    aria-label="{{ 'products.product.xr_button_label' | t }}"
+                    data-shopify-xr
+                    data-shopify-model3d-id="{{ first_3d_model.id }}"
+                    data-shopify-title="{{ product.title | escape }}"
+                    data-shopify-xr-hidden
+            >
+                {% render 'icon-3d-model' %}
+                {{ 'products.product.xr_button' | t }}
+            </button>
+        {%- endif -%}
+    {% else %}
+        {{ 'product-1' | placeholder_svg_tag: 'bg-dark-10 lg:h-688 w-full object-cover' }}
+    {% endif %}
+</div>
+{% render "product-gallery-modal" %}
+<script>
+    window.glide_options = window.glide_options || {};
+    window.glide_options['product-gallery-modal-{{ product.id }}'] = {
+        type: 'carousel',
+        bound: true,
+        perView: 1,
+        swipeThreshold: false,
+        dragThreshold: false,
+        gap: 0,
+        breakpoints: {
+            768: {
+                swipeThreshold: 80,
+                dragThreshold: 120,
+                gap: 10,
+                animationDuration: 400
+            }
+        }
+    };
+
+    window.use_zoom_in_gallery = true;
+</script>

@@ -1,0 +1,37 @@
+<div id="search-window" class="min-h-0 md:container">
+        <div class="h-full w-full lg:w-10/12 mx-auto">
+            <div class="max-sm:hidden triangle ml-56"></div>
+            <div class="h-full bg-light rounded-md overflow-hidden">
+                {%- if predictive_search.resources.products.size > 0 -%}
+                    <div class="max-sm:hidden search-modal h-full flex">
+                        <div class="w-2/3 p-24 flex flex-col">
+                            <div class="overflow-y-auto">
+                                <div class="border-b border-light-material">
+                                </div>
+                            </div>
+                            <a class="btn w-full mt-32"
+                               href="#">Show all products</a>
+                        </div>
+                    </div>
+
+                    {% comment %} RESPONSIVE VERSION needs to be added from core {% endcomment %}
+                {% else %}
+                    <div class="h-full flex items-center p-24 md:bg-light-surface">
+                        <p class="search__info search__info--empty-input">
+                            {{ 'general.search.type' | t }}
+                        </p>
+                        <p class="search__info search__info--no-found hidden">
+                            {{ 'general.search.no_results' | t }}
+                        </p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <span class="hidden" data-predictive-search-live-region-count-value>
+    {%- if predictive_search.resources.products.size == 0 -%}
+        {{ 'templates.search.no_results' | t: terms: predictive_search.terms }}
+    {%- else -%}
+        {{ 'templates.search.results_with_count' | t: terms: predictive_search.terms, count: predictive_search.resources.products.size }}
+    {%- endif -%}
+  </span>

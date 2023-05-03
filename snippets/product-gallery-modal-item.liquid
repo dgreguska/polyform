@@ -1,0 +1,43 @@
+<div class="glide__slide h-full js-image-zoom image-zoom"
+     style='background-image: url("{{ image | image_url: width: 4096 }}");'>
+    <div class="bg-light h-full lg:p-24 image-zoom__inner">
+        <picture>
+            <source media="(min-width: 4096px)"
+                    data-srcset="{{ image | image_url: width: 4096 }},
+                                {{ image | image_url: width: 8192 }} 2x"/>
+            <source media="(min-width: 2890px)"
+                    data-srcset="{{ image | image_url: width: 2890 }},
+                                {{ image | image_url: width: 5780 }} 2x"/>
+            <source media="(min-width: 2200px)"
+                    data-srcset="{{ image | image_url: width: 2200 }},
+                                {{ image | image_url: width: 4400 }} 2x"/>
+            <source media="(min-width: 2048px)"
+                    data-srcset="{{ image | image_url: width: 2048 }},
+                                {{ image | image_url: width: 4096 }} 2x"/>
+            <source media="(min-width: 1680px)"
+                    data-srcset="{{ image | image_url: width: 1680 }},
+                                {{ image | image_url: width: 3360 }} 2x"/>
+            <source media="(min-width: 1445px)"
+                    data-srcset="{{ image | image_url: width: 1445 }},
+                                {{ image | image_url: width: 2890 }} 2x"/>
+            <source media="(min-width: 1100px)"
+                    data-srcset="{{ image | image_url: width: 1100 }},
+                                {{ image | image_url: width: 2200 }} 2x"/>
+            <source media="(min-width: 991px)"
+                    data-srcset="{{ image | image_url: width: 991 }},
+                                {{ image | image_url: width: 1982 }} 2x"/>
+            <source media="(min-width: 840px)"
+                    data-srcset="{{ image | image_url: width: 840 }},
+                                {{ image | image_url: width: 1680 }} 2x"/>
+            <source media="(min-width: 550x)"
+                    data-srcset="{{ image | image_url: width: 550 }},
+                                {{ image | image_url: width: 1110 }} 2x"/>
+            <source media="(min-width: 360px)"
+                    data-srcset="{{ image | image_url: width: 360 }},
+                                {{ image | image_url: width: 720 }} 2x"/>
+            <img data-src="{{ image | image_url: width: 840 }}"
+                 alt="{{ image.alt }}"
+                 class="lazyload mx-auto w-full h-full object-scale-down">
+        </picture>
+    </div>
+</div>

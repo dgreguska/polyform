@@ -1,0 +1,202 @@
+<script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
+
+<div id="CartDrawer-Overlay" class="fixed w-full h-full top-0 left-0 bg-dark-60 z-1000 opacity-0 invisible"></div>
+<cart-drawer
+        class="w-full max-w-460 h-full fixed top-0 right-0 bg-light border-l border-light-material translate-x-full transition-transform z-1000">
+    {% render "loader", add_classes: 'js-cart-loader fixed' %}
+    <div id="CartDrawer" class="h-full flex flex-col">
+        <div class="flex justify-between items-center p-16 border-b border-light-material">
+            <h2 class="font-bold">{{ 'sections.cart.title' | t }}</h2>
+            <div class="js-cart-drawer-close group p-8 -m-8 cursor-pointer">
+                {% render 'icon-close', class: 'w-24 h-24 transition-transform group-hover:rotate-90' %}
+            </div>
+        </div>
+        <div class="drawer__inner min-h-0 h-full">
+            <div class="h-full flex flex-col overflow-y-auto custom-scrollbar">
+                <div class="px-16">
+                    <cart-drawer-items class="{% if cart == empty %}is-empty{% endif %}">
+                        <form action="{{ routes.cart_url }}"
+                              id="CartDrawer-Form"
+                              class="cart__contents cart-drawer__form"
+                              method="post">
+                            <div id="CartDrawer-CartItems" class="drawer__contents js-conents">
+                                <ul class="js-contents">
+                                    {%- if cart != empty -%}
+                                        {% for item in cart.items %}
+                                            <li class="py-16 flex{% unless forloop.last %} border-b border-light-material{% endunless %}">
+                                                <a href="{{ item.url }}" class="w-72 h-72 mr-16 flex-shrink-0"
+                                                   title="{{ item.product.title | escape }}">
+                                                    {% if item.image %}
+                                                        <picture>
+                                                            <source data-srcset="{{ item.image | image_url: width: 72, height: 72, crop: "center" }},
+                                                                            {{ item.image | image_url: width: 144, height: 144, crop: "center" }} 2x"/>
+                                                            {% liquid
+                                                                if item.image.alt != blank
+                                                                    assign image_alt = item.image.alt
+                                                                else
+                                                                    assign image_alt = item.product.title
+                                                                endif
+                                                            %}
+                                                            <img data-src="{{ item.image | image_url: width: 72, height: 72, crop: "center" }}"
+                                                                 alt="{{ item.product.title | escape }}"
+                                                                 width="72"
+                                                                 height="72"
+                                                                 class="lazyload w-full h-full object-cover">
+                                                        </picture>
+                                                    {% else %}
+                                                        {{ "product-1" | placeholder_svg_tag: "bg-dark-10 w-full h-full object-cover" }}
+                                                    {% endif %}
+                                                </a>
+                                                <div class="flex max-sm:flex-wrap items-center gap-12 w-full justify-between">
+                                                    <div>
+                                                        {{ item.product.title | link_to: item.url, item.product.title, class: "font-bold leading-tight line-clamp-4" }}
+                                                        <div class="mt-4 whitespace-nowrap flex flex-col gap-4 text-p-small">
+                                                            {%- if item.original_price != item.final_price -%}
+                                                                <span class="visually-hidden">
+                                                                    {{ 'products.product.price.regular_price' | t }}
+                                                                  </span>
+                                                                <s class="text-caption text-light-subdued">
+                                                                    {{- item.original_price | money -}}
+                                                                </s>
+                                                                <span class="visually-hidden">
+                                                                    {{ 'products.product.price.sale_price' | t }}
+                                                                  </span>
+                                                                <span class="font-bold text-brand">
+                                                                    {{ item.final_price | money }}
+                                                                </span>
+                                                            {%- else -%}
+                                                                <span>
+                                                                    {{ item.original_price | money }}
+                                                                </span>
+                                                            {%- endif -%}
+                                                        </div>
+                                                        <div class="mt-8 flex items-center">
+                                                            <div class="">
+                                                                <label class="visually-hidden"
+                                                                       for="Quantity-{{ item.index | plus: 1 }}">
+                                                                    {{ 'products.product.quantity.label' | t }}
+                                                                </label>
+                                                                <quantity-input
+                                                                        class="flex-shrink-0 h-44 inline-flex border border-light-material rounded-button overflow-hidden">
+                                                                    <button class="w-44 h-44 flex-center border-r border-light-material transition-colors hover:bg-light-surface"
+                                                                            name="minus"
+                                                                            aria-label="minus"
+                                                                            type="button">
+                                                                        <span class="visually-hidden">{{ 'products.product.quantity.increase' | t: product: item.product.title | escape }}</span>
+                                                                        {% render "icon-minus", class: "block w-16 h-16 text-brand pointer-events-none touch-manipulation" %}
+                                                                    </button>
+                                                                    <input class="block w-44 h-full max-sm:text-p-small text-center text-brand font-bold outline-none"
+                                                                           type="number"
+                                                                           name="updates[]"
+                                                                           value="{{ item.quantity }}"
+                                                                           min="0"
+                                                                           aria-label="{{ 'products.product.quantity.input_label' | t: product: item.product.title | escape }}"
+                                                                           id="Quantity-{{ item.index | plus: 1 }}"
+                                                                           data-index="{{ item.index | plus: 1 }}"
+                                                                    >
+                                                                    <button class="w-44 h-44 flex-center border-l border-light-material transition-colors hover:bg-light-surface"
+                                                                            name="plus"
+                                                                            aria-label="plus"
+                                                                            type="button">
+                                                                        <span class="visually-hidden">{{ 'products.product.quantity.increase' | t: product: item.product.title | escape }}</span>
+                                                                        {% render "icon-plus", class: "block w-16 h-16 text-brand pointer-events-none touch-manipulation" %}
+                                                                    </button>
+                                                                </quantity-input>
+                                                            </div>
+                                                            <cart-remove-button
+                                                                    id="CartDrawer-Remove-{{ item.index | plus: 1 }}"
+                                                                    data-index="{{ item.index | plus: 1 }}"
+                                                                    class="group w-44 h-44 flex-center cursor-pointer">
+                                                                <button type="button"
+                                                                        class="block"
+                                                                        title="{{ 'sections.cart.remove_title' | t: title: item.title }}"
+                                                                        aria-label="{{ 'sections.cart.remove_title' | t: title: item.title }}">
+                                                                    {% render "icon-remove", class: "w-16 h-16 group-hover:text-brand" %}
+                                                                </button>
+                                                            </cart-remove-button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ml-12 min-w-fit">
+                                                        <div class="flex items-end justify-end">
+                                                            <span class="whitespace-nowrap font-bold">{{ item.final_line_price | money }}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <div id="Line-item-error-{{ item.index | plus: 1 }}"
+                                                 class="mt-8 flex items-center text-warning hidden"
+                                                 role="alert">
+                                                <p class="js-cart-item-error-text max-sm:text-p-small order-1"></p>
+                                                {% render "icon-validation", class: "mr-8 h-20 w-20" %}
+                                            </div>
+                                        {% endfor %}
+                                    {%- endif -%}
+                                </ul>
+                            </div>
+
+                            <p class="visually-hidden" id="cart-live-region-text" aria-live="polite"
+                               role="status"></p>
+                            <p class="visually-hidden" id="shopping-cart-line-item-status" aria-live="polite"
+                               aria-hidden="true"
+                               role="status">{{ 'accessibility.loading' | t }}</p>
+                        </form>
+                    </cart-drawer-items>
+                </div>
+                <div class="mt-auto px-16 py-32 bg-light-surface">
+                    <div class="flex flex-col gap-8"{{ block.shopify_attributes }}>
+                        <div class="w-full flex items-center justify-between gap-8 font-bold text-p-large"
+                             role="status">
+                            <h2>{{ 'sections.cart.subtotal' | t }}</h2>
+                            <p>{{ cart.total_price | money_with_currency }}</p>
+                        </div>
+
+                        <div>
+                            {%- if cart.cart_level_discount_applications.size > 0 -%}
+                                <ul role="list" aria-label="{{ 'customer.order.discount' | t }}">
+                                    {%- for discount in cart.cart_level_discount_applications -%}
+                                        <li class="text-brand font-bold flex items-center justify-between">
+                                            <span class="flex items-center">
+                                                {%- render 'icon-discount', class: "w-12 h-12 mr-8" -%}
+                                                {{ discount.title }}
+                                            </span>
+                                            <p>
+                                                -{{ discount.total_allocated_amount | money }}
+                                            </p>
+                                        </li>
+                                    {%- endfor -%}
+                                </ul>
+                            {%- endif -%}
+                        </div>
+
+                        <small class="text-caption">
+                            {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                                {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                            {%- elsif cart.taxes_included -%}
+                                {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+                            {%- elsif shop.shipping_policy.body != blank -%}
+                                {{ 'sections.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+                            {%- else -%}
+                                {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+                            {%- endif -%}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-16 grid gap-8">
+            {{ 'general.cart.view' | t: count: cart.item_count | link_to: routes.cart_url, class: "btn btn-outline w-full uppercase" }}
+            <form action="{{ routes.cart_url }}" method="post" id="cart-notification-form" class="w-full">
+                <button type="submit"
+                        id="CartDrawer-Checkout"
+                        class="btn btn-primary w-full uppercase"
+                        name="checkout"
+                        {% if cart == empty %}
+                            disabled
+                        {% endif %}
+                >
+                    {{ 'sections.cart.checkout' | t }}
+                </button>
+            </form>
+        </div>
+    </div>
+</cart-drawer>

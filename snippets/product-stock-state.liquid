@@ -1,0 +1,19 @@
+<div class="flex items-center text-p-small font-bold{% if class != blank %}{{ class }}{% endif %}">
+    {% if current_variant.available %}
+        <div class="w-20 h-20 flex-center flex-shrink-0 mr-8">
+            <span class="w-10 h-10 bg-positive rounded-full overflow-hidden"></span>
+        </div>
+        {% if current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= 10 %}
+            {{ current_variant.inventory_quantity }} {{ 'products.product.on_stock' | t }}
+        {% elsif current_variant.inventory_quantity > 10 %}
+            {{ 'products.product.on_stock_more_than_10' | t }}
+        {% else %}
+            {{ 'products.product.on_stock' | t }}
+        {% endif %}
+    {% else %}
+        <div class="w-20 h-20 flex-center flex-shrink-0 mr-8">
+            {% render 'icon-close-circle', class: "w-10 h-10 text-dark-60 rounded-full overflow-hidden" %}
+        </div>
+        {{ 'products.product.out_of_stock' | t }}
+    {% endif %}
+</div>

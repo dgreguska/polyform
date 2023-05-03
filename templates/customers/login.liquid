@@ -1,0 +1,149 @@
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+<div class="customer login container mt-40 md:my-80 md:pb-80">
+    <div class="flex max-sm:flex-col justify-center">
+        <div class="w-full md:6/16 lg:w-5/12 md:pr-80 max-sm:pb-32">
+            <h1 id="recover" tabindex="-1" class="mb-32 max-sm:text-h4 text-display-subtitle font-bold">
+                {{ 'customer.recover_password.title' | t }}
+            </h1>
+            <div>
+                <p class="mt-16 text-dark-subdued max-sm:text-p-small">
+                    {{ 'customer.recover_password.subtext' | t }}
+                </p>
+
+                {%- form 'recover_customer_password' -%}
+                    {%- if form.errors -%}
+                        <div class="mb-24 p-16 flex items-center bg-negative-25 border border-negative rounded-md"
+                             autofocus
+                             tabindex="-1">
+                            {% render "icon-validation", class: "mr-16 w-24 h-24 flex-shrink-0 text-negative" %}
+                            {{ form.errors.messages['form'] }}
+                        </div>
+                    {%- endif -%}
+
+                    {% assign recover_success = form.posted_successfully? %}
+                    <div class="relative mt-16">
+                        <input class="input"
+                               type="email"
+                               value=""
+                               name="email"
+                               id="RecoverEmail"
+                               autocorrect="off"
+                               autocapitalize="off"
+                               autocomplete="email"
+                                {% if form.errors %}
+                                    aria-invalid="true"
+                                    aria-describedby="RecoverEmail-email-error"
+                                    autofocus
+                                {% endif %}
+                               placeholder="{{ 'customer.login_page.email' | t }}"
+                        >
+                        <label for="RecoverEmail">
+                            {{ 'customer.login_page.email' | t }}
+                        </label>
+                    </div>
+                    <button class="btn btn-primary btn-large block w-full mt-16" type="submit">
+                        {{ 'customer.login_page.submit' | t }}
+                    </button>
+
+                    <a href="#login" class="block mt-12 text-brand text-center hover:underline">
+                        {{ 'customer.login_page.cancel' | t }}
+                    </a>
+                {%- endform -%}
+            </div>
+
+            <h1 id="login" tabindex="-1" class="mb-32 max-sm:text-h4 text-display-subtitle font-bold">
+                {{ 'customer.login_page.title' | t }}
+            </h1>
+            <div>
+                {%- if recover_success == true -%}
+                    <div class="mb-16 p-16 flex items-center bg-positive-25 border border-positive rounded-md" tabindex="-1">
+                        {% render "icon-checkmark-circle", class: "mr-16 w-24 h-24 flex-shrink-0 text-positive" %}
+                        {{ 'customer.recover_password.success' | t }}
+                    </div>
+                {%- endif -%}
+                {%- form 'customer_login', novalidate: 'novalidate' -%}
+                    {%- if form.errors -%}
+                        <div class="mb-24 p-16 flex items-center bg-negative-25 border border-negative rounded-md"
+                             tabindex="-1" autofocus>
+                            <span class="visually-hidden">{{ 'accessibility.error' | t }} </span>
+                            {% render "icon-validation", class: "mr-16 w-24 h-24 flex-shrink-0 text-negative" %}
+                            {{ form.errors | default_errors }}
+                        </div>
+                    {%- endif -%}
+
+                    <div class="relative">
+                        <input
+                                class="input"
+                                type="email"
+                                name="customer[email]"
+                                id="CustomerEmail"
+                                autocomplete="email"
+                                autocorrect="off"
+                                autocapitalize="off"
+                                {% if form.errors contains 'form' %}
+                                    aria-invalid="true"
+                                {% endif %}
+                                placeholder="{{ 'customer.login_page.email' | t }}"
+                        >
+                        <label for="CustomerEmail">
+                            {{ 'customer.login_page.email' | t }}
+                        </label>
+                    </div>
+
+                    {%- if form.password_needed -%}
+                        <div class="relative mt-16">
+                            <input class="input"
+                                   type="password"
+                                   value=""
+                                   name="customer[password]"
+                                   id="CustomerPassword"
+                                   autocomplete="current-password"
+                                    {% if form.errors contains 'form' %}
+                                        aria-invalid="true"
+                                    {% endif %}
+                                   placeholder="{{ 'customer.login_page.password' | t }}"
+                            >
+                            <label for="CustomerPassword">
+                                {{ 'customer.login_page.password' | t }}
+                            </label>
+                        </div>
+                    {%- endif -%}
+
+                    <button class="btn btn-primary btn-large block w-full mt-16" type="submit">
+                        {{ 'customer.login_page.sign_in' | t }}
+                    </button>
+
+                    <a href="#recover" class="block mt-24 text-brand text-center hover:underline">
+                        {{ 'customer.login_page.forgot_password' | t }}
+                    </a>
+                {%- endform -%}
+            </div>
+
+            {%- if shop.checkout.guest_login -%}
+                <div>
+                    <hr>
+                    <h2>{{ 'customer.login_page.guest_title' | t }}</h2>
+
+                    {%- form 'guest_login' -%}
+                        <button class="btn btn-primary btn-large block w-full mt-16" type="button">
+                            {{ 'customer.login_page.guest_continue' | t }}
+                        </button>
+                    {%- endform -%}
+                </div>
+            {%- endif -%}
+        </div>
+
+        <div class="w-full md:6/16 lg:w-5/12 max-sm:pt-32 md:pl-80 max-sm:border-t md:border-l border-light-material">
+            <div>
+                <h2 class="mb-32 max-sm:text-h4 text-display-subtitle font-bold">New customer</h2>
+                <p class="max-sm:text-p-small text-dark-subdued">Create your personalized Polyform account! You can
+                    track your orders and edit billing/shipping info.</p>
+                <a href="{{ routes.account_register_url }}"
+                   class="btn btn-primary btn-large w-full mt-32">
+                    {{ 'customer.login_page.create_account' | t }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

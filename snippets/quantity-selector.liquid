@@ -1,0 +1,31 @@
+{%- if product.selected_or_first_available_variant.available -%}
+    <div class="mt-32" {{ block.shopify_attributes }}>
+        <label class="visually-hidden"
+               for="Quantity-{{ section.id }}">
+            {{ 'products.product.quantity.label' | t }}
+        </label>
+        <quantity-input
+                class="flex-shrink-0 h-44 md:h-56 inline-flex border border-light-material rounded-md overflow-hidden">
+            <button class="p-12 -mt-1 border-r border-light-material transition-colors hover:bg-light-surface"
+                    aria-label="minus"
+                    name="minus"
+                    type="button">
+                {% render "icon-minus", class: "block w-20 h-20 text-brand pointer-events-none touch-manipulation" %}
+            </button>
+            <input class="block w-56 h-full max-sm:text-p-small text-center text-brand font-bold outline-none"
+                   type="number"
+                   name="quantity"
+                   id="Quantity-{{ section.id }}"
+                   min="1"
+                   value="1"
+                   form="{{ product_form_id }}"
+            >
+            <button class="p-12 -mt-1 border-l border-light-material transition-colors hover:bg-light-surface"
+                    aria-label="plus"
+                    name="plus"
+                    type="button">
+                {% render "icon-plus", class: "block w-20 h-20 text-brand pointer-events-none touch-manipulation" %}
+            </button>
+        </quantity-input>
+    </div>
+{% endif %}

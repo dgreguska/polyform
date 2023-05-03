@@ -1,0 +1,155 @@
+<nav class="burger-menu sidebar sidebar-right text-dark" id="mobile-menu" aria-label="main-menu-mobile">
+
+    <div class="fixed flex right-20 top-16 p-10 -m-10 bg-light text-dark js-sidebar-toggle z-1"
+         data-sidebar-target="mobile-menu">
+        {% render "icon-close", class: "w-24 h-24" %}
+    </div>
+
+    <div class="js-mobile-menu-scroll">
+        <div class="js-mobile-menu-mover transition-transform">
+            <div class="flex items-center justify-between px-20 py-16">
+                <a href="{{ routes.root_url }}" class="inline-block mr-32 max-w-150 h-44">
+                    {%- if logo != blank -%}
+                        {%- assign image_size_2x = logo_width | times: 2 | at_most: 5760 -%}
+                        <img data-srcset="{{ logo | image_url: width: logo_width }} 1x, {{ logo | image_url: width: image_size_2x }} 2x"
+                             data-src="{{ logo | image_url: width: logo_width }}"
+                             class="lazyload w-full h-full object-scale-down"
+                             width="{{ logo.width }}"
+                             height="{{ logo.height }}"
+                             alt="{{ logo.alt | default: shop.name | escape }}"
+                        >
+                    {%- else -%}
+                        <span class="text-p text-left">{{ shop.name }}</span>
+                    {%- endif -%}
+                </a>
+            </div>
+
+            <ul class="py-16">
+                {%- for link in section.settings.menu.links -%}
+                    <li class="js-mobile-menu-item">
+                        {%- if link.links != blank -%}
+                            <div class="flex justify-between items-center px-20 py-8">
+                                <span class="font-bold text-p-large">{{ link.title | escape }}</span>
+                                {% render "icon-right-arrow-big", class: "w-24 h-24 text-dark" %}
+                            </div>
+                            <div class="js-mobile-menu-sub-level">
+                                <div class="js-mobile-menu-back font-bold flex items-center px-20 py-16 mb-8">
+                                    {% render "icon-left-arrow", class: "w-16 h-16 text-dark mr-8" %}
+                                    <span>{{ 'general.back' | t }}</span>
+                                </div>
+                                <div class="px-20 py-16 h4">{{ link.title | escape }}</div>
+                                <ul>
+                                    {%- for childlink in link.links -%}
+                                        <li class="{%- if childlink.links != blank -%}js-mobile-menu-item{% endif %}">
+                                            {%- if childlink.links != blank -%}
+                                                <div class="flex justify-between items-center px-20 py-8">
+                                                    <span class="font-bold text-p-large">{{ childlink.title | escape }}</span>
+                                                    {% render "icon-right-arrow-big", class: "w-24 h-24 text-dark" %}
+                                                </div>
+                                                <div class="js-mobile-menu-sub-level">
+                                                    <div class="js-mobile-menu-back font-bold flex items-center px-20 py-16 mb-8">
+                                                        {% render "icon-left-arrow", class: "w-16 h-16 mr-8" %}
+                                                        <span>{{ 'general.back' | t }}</span>
+                                                    </div>
+                                                    <div class="px-20 py-16 h4">{{ childlink.title | escape }}</div>
+                                                    <ul>
+                                                        {%- for grandchildlink in childlink.links -%}
+                                                            <li>
+                                                                {{ grandchildlink.title | link_to: grandchildlink.url, grandchildlink.title, class: "flex px-20 py-8" }}
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% else %}
+                                                {{ childlink.title | link_to: childlink.url, childlink.title, class: "flex px-20 py-8" }}
+                                            {%- endif -%}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {%- else -%}
+                            <a href="{{ link.url }}"
+                               class="block px-20 py-8 font-bold text-p-large">{{ link.title | escape }}</a>
+                        {%- endif -%}
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {% render 'divider-horizontal' %}
+
+            <ul class="py-24">
+                {%- if localization.available_languages.size > 1 -%}
+                    <li class="px-20 py-8">
+                        <localization-form class="w-full">
+                            {%- form 'localization', id: 'MobileMenuLanguageForm', class: 'localization-form' -%}
+                                <div class="relative">
+                                    <button type="button"
+                                            class="w-full flex justify-between items-center text-p-large font-bold"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                            aria-controls="MobileMenuLanguageList"
+                                            aria-describedby="MobileMenuLanguageLabel">
+                                        {{ localization.language.endonym_name | capitalize }}
+                                        {% render "icon-right-arrow-big", class: "ml-4 w-24 h-24 rotate-90" %}
+                                    </button>
+                                    <ul id="MobileMenuLanguageList" role="list"
+                                        class="dropdown-menu top-auto bottom-full mt-0 mb-16 right-0">
+                                        {%- for language in localization.available_languages -%}
+                                            <li class="disclosure__item" tabindex="-1">
+                                                <a class="dropdown-menu-link{% if language.iso_code == localization.language.iso_code %} text-brand{% endif %}"
+                                                   href="#" hreflang="{{ language.iso_code }}"
+                                                   lang="{{ language.iso_code }}"{% if language.iso_code == localization.language.iso_code %} aria-current="true"{% endif %}
+                                                   data-value="{{ language.iso_code }}">
+                                                    {{ language.endonym_name | capitalize }}
+                                                </a>
+                                            </li>
+                                        {%- endfor -%}
+                                    </ul>
+                                </div>
+                                <input type="hidden" name="locale_code"
+                                       value="{{ localization.language.iso_code }}">
+                            {%- endform -%}
+                        </localization-form>
+                    </li>
+                {%- endif -%}
+                {%- if localization.available_countries.size > 1 -%}
+                    <li class="px-20 py-8">
+                        <localization-form class="w-full">
+                            {%- form 'localization', id: 'MobileMenuCountryForm', class: 'localization-form w-full' -%}
+                                <div class="relative w-full">
+                                    <button type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                            aria-controls="MobileMenuCountryList"
+                                            aria-describedby="MobileMenuCountryLabel"
+                                            data-bs-display="static"
+                                            class="w-full flex justify-between items-center text-p-large font-bold">
+                                        {{ localization.country.currency.iso_code }}
+                                        {% render "icon-right-arrow-big", class: "ml-4 w-24 h-24 rotate-90" %}
+                                    </button>
+                                    <ul id="MobileMenuCountryList" role="list"
+                                        class="dropdown-menu fade">
+                                        {%- for country in localization.available_countries -%}
+                                            <li class="disclosure__item" tabindex="-1">
+                                                <a class="dropdown-menu-link{% if country.iso_code == localization.country.iso_code %} text-brand{% endif %}"
+                                                   href="#"{% if country.iso_code == localization.country.iso_code %} aria-current="true"{% endif %}
+                                                   data-value="{{ country.iso_code }}">
+                                                    {{ country.name }}
+                                                    <span>({{ country.currency.iso_code }} {{ country.currency.symbol }})</span>
+                                                </a>
+                                            </li>
+                                        {%- endfor -%}
+                                    </ul>
+                                    <input type="hidden" name="country_code"
+                                           value="{{ localization.country.iso_code }}">
+                                </div>
+                            {%- endform -%}
+                        </localization-form>
+                    </li>
+                {%- endif -%}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="bg-filter js-sidebar-toggle" data-sidebar-target="mobile-menu"></div>

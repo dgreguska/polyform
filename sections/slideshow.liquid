@@ -1,0 +1,351 @@
+{% render 'section-padding', id: section.id, padding_top: section.settings.padding_top, padding_bottom: section.settings.padding_bottom %}
+
+{% assign slides_number = section.blocks | size %}
+
+<div class="section-{{ section.id }}-padding">
+    <div class="glide slider{% unless section.settings.slider_type == "full_width" %} md:container{% endunless %}">
+        <div data-generic-slider="slider-{{ section.id }}"
+             data-num-slides="{{ slides_number }}" class="relative">
+            <div data-glide-el="track"
+                 class="glide__track h-full{% unless section.settings.slider_type == "full_width" %} md:rounded-md{% endunless %}">
+                <div class="glide__slides glide-fade">
+                    {% for block in section.blocks %}
+                        {%- case block.type -%}
+                            {%- when 'slide' -%}
+                                <div class="glide__slide md:bg-dark-10 relative max-sm:flex max-sm:flex-col max-sm:justify-end" {{ block.shopify_attributes }}>
+                                    <div class="relative h-300 md:h-400{% if section.settings.media_size == "large" %} lg:h-700{% elsif section.settings.media_size == "medium" %} lg:h-600{% else %} lg:h-540{% endif %} w-full relative max-sm:order-1">
+                                        {%- liquid
+                                            if block.settings.slide_image.alt != blank
+                                                assign image_alt = block.settings.slide_image.alt | escape
+                                            else
+                                                assign image_alt = block.settings.slide_title | escape
+                                            endif
+
+                                            if section.settings.media_size == "large"
+                                                assign image_height = 700
+                                            elsif section.settings.media_size == "medium"
+                                                assign image_height = 600
+                                            else
+                                                assign image_height = 540
+                                            endif
+                                        -%}
+                                        {% if block.settings.slide_image %}
+                                            <picture>
+                                                <source media="(min-width: 3840px)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 3840 }},
+                                                            {{ block.settings.slide_image | image_url: width: 7680 }} 2x"/>
+                                                <source media="(min-width: 3000px)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 3000 }},
+                                                            {{ block.settings.slide_image | image_url: width: 6000 }} 2x"/>
+                                                <source media="(min-width: 2000px)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 2000 }},
+                                                            {{ block.settings.slide_image | image_url: width: 4000 }} 2x"/>
+                                                <source media="(min-width: 1780px)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 1780 }},
+                                                            {{ block.settings.slide_image | image_url: width: 2560 }} 2x"/>
+                                                <source media="(min-width: 1500px)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 1500 }},
+                                                            {{ block.settings.slide_image | image_url: width: 3000 }} 2x"/>
+                                                <source media="(min-width: 1100px)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 1100 }},
+                                                            {{ block.settings.slide_image | image_url: width: 2200 }} 2x"/>
+                                                <source media="(min-width: 750px)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 750 }},
+                                                            {{ block.settings.slide_image | image_url: width: 1500 }} 2x"/>
+                                                <source media="(min-width: 550x)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 550 }},
+                                                            {{ block.settings.slide_image | image_url: width: 1110 }} 2x"/>
+                                                <source media="(min-width: 360px)"
+                                                        srcset="{{ block.settings.slide_image | image_url: width: 360 }},
+                                                            {{ block.settings.slide_image | image_url: width: 720 }} 2x"/>
+                                                {% liquid
+                                                    assign image_height = media.preview_image.width | divided_by: media.preview_image.aspect_ratio
+                                                    assign image_loading = ""
+                                                    unless forloop.first
+                                                        assign image_loading = "lazy"
+                                                    endunless
+                                                %}
+                                                {{ block.settings.slide_image | image_url: width: 1920 | image_tag:
+                                                class: 'block absolute max-w-full top-0 left-0 h-full w-full object-cover',
+                                                loading: image_loading,
+                                                height: image_height,
+                                                alt: image_alt }}
+                                            </picture>
+                                        {% else %}
+                                            {{ 'image' | placeholder_svg_tag: 'block absolute max-w-full top-0 left-0 h-full w-full object-cover' }}
+                                        {% endif %}
+                                        <div class="absolute top-0 left-0 w-full h-full bg-dark"
+                                             style="opacity: {{ block.settings.slide_overlay_opacity }}%">
+                                        </div>
+                                    </div>
+                                    {% if block.settings.slide_title != blank or block.settings.slide_button_link != blank %}
+                                        <div class="max-sm:container">
+                                            <div class="max-sm:py-24{% unless section.settings.slider_type == "full_width" %} md:p-96{% endunless %} md:absolute md:top-0 md:left-0 md:w-full md:h-full flex flex-col justify-center">
+                                            {% if block.settings.slide_overlay %}
+                                                <div class="relative">
+                                                    {% endif %}
+                                                {% if section.settings.slider_type == "full_width" %}
+                                                    <div class="md:container md:w-3/4">
+                                                        {% endif %}
+                                                        {% if block.settings.slide_title != blank %}
+                                                            <div class="h1 md:text-light whitespace-normal">
+                                                                {{ block.settings.slide_title }}
+                                                            </div>
+                                                        {% endif %}
+                                                        {% if block.settings.slide_button_title != blank %}
+                                                            <div class="mt-24 lg:mt-32">
+                                                                <a {% if block.settings.slide_button_link == blank %}
+                                                                    role="link"
+                                                                    aria-disabled="true"
+                                                                {% else %}
+                                                                    href="{{ block.settings.slide_button_link }}"{% endif %}
+                                                                        class="btn btn-large md:btn-outline btn-big md:bg-light md:text-brand md:hover:bg-light">
+                                                                    {{ block.settings.slide_button_title }}
+                                                                </a>
+                                                            </div>
+                                                        {% endif %}
+                                                        {% if section.settings.slider_type == "full_width" %}
+                                                    </div>
+                                                    {% endif %}
+                                                    {% if block.settings.slide_overlay %}
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                        {% endcase %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% if slides_number > 1 %}
+                {% if section.settings.arrows_show %}
+                    <div class="max-sm:hidden" data-glide-el="controls">
+                        <button class="btn btn-outline p-0 w-48 lg:w-64 h-48 lg:h-64 bg-light hover:bg-light absolute top-1/2{% if section.settings.slider_type == "container" or section.settings.slider_type == "container_colored" %} -left-24 lg:-left-32{% else %} left-24{% endif %} -translate-y-1/2 border-transparent"
+                                type="button"
+                                data-glide-dir="<"
+                                aria-label="Previous slide">
+                            {% render "icon-right-arrow", class: "w-16 lg:w-20 h-16 lg:h-20 rotate-180" %}
+                        </button>
+                        <button class="btn btn-outline p-0 w-48 lg:w-64 h-48 lg:h-64 bg-light hover:bg-light absolute top-1/2{% if section.settings.slider_type == "container" or section.settings.slider_type == "container_colored" %} -right-24 lg:-right-32{% else %} right-24{% endif %} -translate-y-1/2 border-transparent"
+                                type="button"
+                                data-glide-dir=">"
+                                aria-label="Next slide">
+                            {% render "icon-right-arrow", class: "w-16 lg:w-20 h-16 lg:h-20" %}
+                        </button>
+                    </div>
+                {% endif %}
+
+                {% if section.settings.bullets_show %}
+                    <div class="w-full{% if section.settings.bullets_type == "type_1" %} max-sm:mt-24 md:absolute md:bottom-0 md:left-0 md:pb-40{% else %} absolute bottom-0 left-0 md:pb-36 max-sm:mb-12{% endif %}">
+                        <ul class="slider-bullets{% if section.settings.bullets_type == "type_2" %} slider-bullets--2{% else %} slider-bullets--1{% endif %} -my-8 flex-center"
+                            data-glide-el="controls[nav]">
+                            {% for block in section.blocks %}
+                                {%- case block.type -%}
+                                    {%- when 'slide' -%}
+                                        <li data-glide-dir="={{ forloop.index0 }}"
+                                            class="glide__bullet py-8 cursor-pointer border-0">
+                                            <div class="bullet"></div>
+                                        </li>
+                                {% endcase %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+<script>
+    window.glide_options = window.glide_options || {};
+    window.glide_options['slider-{{ section.id }}'] = {
+        type: 'slider',
+        bound: true,
+        {% if section.settings.slider_autoplay %}
+        autoplay: 4500,
+        animationTimingFunc: 'ease-in-out',
+        hoverpause: true,
+        {% endif %}
+        animationDuration: 150,
+        rewindDuration: 150,
+        gap: 0,
+        dragThreshold: false,
+        perView: 1,
+        breakpoints: {
+            768: {
+                swipeThreshold: 80,
+                dragThreshold: 120,
+                animationDuration: 150
+            }
+        }
+    };
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.slideshow.presets.name",
+  "tag": "section",
+  "class": "slideshow",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "t:sections.slideshow.blocks.slide.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "slide_image",
+          "label": "t:sections.slideshow.blocks.slide.settings.image.label"
+        },
+        {
+          "type": "richtext",
+          "id": "slide_title",
+          "default": "<p>Tell your brand's story through images</p>",
+          "label": "t:settings_schema.global.settings.heading.label"
+        },
+        {
+          "type": "text",
+          "id": "slide_button_title",
+          "default": "Button label",
+          "label": "t:settings_schema.global.settings.button.label.label",
+          "info": "t:settings_schema.global.settings.button.label.info"
+        },
+        {
+          "type": "url",
+          "id": "slide_button_link",
+          "label": "t:settings_schema.global.settings.button.link.label"
+        },
+        {
+          "type": "range",
+          "id": "slide_overlay_opacity",
+          "min": 0,
+          "max": 100,
+          "step": 5,
+          "unit": "%",
+          "label": "t:sections.slideshow.blocks.slide.settings.image_overlay_opacity.label",
+          "default": 0
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.slideshow.desc"
+    },
+    {
+      "type": "select",
+      "id": "media_size",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.main-product.settings.media_size.options__1.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.main-product.settings.media_size.options__2.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.main-product.settings.media_size.options__3.label"
+        }
+      ],
+      "default": "large",
+      "label": "t:sections.main-product.settings.media_size.label",
+      "info": "t:sections.main-product.settings.media_size.info"
+    },
+    {
+      "type": "select",
+      "id": "slider_type",
+      "label": "t:sections.slideshow.settings.layout.label",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.slideshow.settings.layout.options__1.label"
+        },
+        {
+          "value": "full_width",
+          "label": "t:sections.slideshow.settings.layout.options__2.label"
+        }
+      ],
+      "default": "container"
+    },
+    {
+      "type": "checkbox",
+      "id": "slider_autoplay",
+      "label": "t:sections.slideshow.settings.autoplay.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "arrows_show",
+      "label": "t:sections.slideshow.settings.arrows.show.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "bullets_show",
+      "label": "t:sections.slideshow.settings.slider_visual.show_bullets",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "bullets_type",
+      "label": "t:sections.slideshow.settings.slider_visual.label",
+      "options": [
+        {
+          "value": "type_1",
+          "label": "t:sections.slideshow.settings.slider_visual.options__1.label"
+        },
+        {
+          "value": "type_2",
+          "label": "t:sections.slideshow.settings.slider_visual.options__2.label"
+        }
+      ],
+      "default": "type_1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.slideshow.name",
+      "blocks": [
+        {
+          "type": "slide"
+        },
+        {
+          "type": "slide"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,44 @@
+{% liquid
+    assign colors = product.options_by_name['Color'].values | sort_natural
+    assign colorsSize = colors | size
+%}
+<div class="mt-24">
+    <div class="flex justify-between text-p-small">
+        <p class="w-full flex justify-between text-p-small font-bold">{{ option.name }}</p>
+        <p class="ml-8 text-dark-subdued flex-shrink-0">{{ option.selected_value }}</p>
+    </div>
+    {% if colorsSize > 1 %}
+        <ul class="mt-14 grid grid-cols-5 gap-6">
+            {% for value in colors %}
+                {% for variant in product.variants %}
+                    {% if variant.metafields.color.values and variant.title contains value %}
+                        {% liquid
+                            assign color = variant.metafields.color.values
+                            assign color_light = variant.metafields.color_light.value
+                        %}
+                        <li>
+                            <a href="{{ variant.url }}"
+                               data-bs-toggle="tooltip"
+                               data-bs-placement="top"
+                               title="{{ value | escape }}"
+                               style='background-color: {{ color }};'
+                               class="block w-full aspect-square outline outline-2 outline-transparent{% if color_light %} border-2 !border-light-material{% else %} border-light{% endif %} transition-colors{% if option.selected_value == value %} border-2 !border-brand{% endif %}">
+                                {% if variant.image %}
+                                    <picture>
+                                        <source data-srcset="{{ variant.image.src | image_url: width: 84, height: 84, crop: "center" }},
+                                                {{ variant.image.src | image_url: width: 168, height: 168, crop: "center" }} 2x"/>
+                                        <img data-src="{{ variant.image.src | image_url: width: 84, height: 84, crop: "center" }}"
+                                             alt="{{ variant.image.alt | default: value }}"
+                                             class="lazyload w-full object-cover">
+                                    </picture>
+                                {% endif %}
+                                <span class="visually-hidden">{{ value | escape }}</span>
+                            </a>
+                        </li>
+                        {% break %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>

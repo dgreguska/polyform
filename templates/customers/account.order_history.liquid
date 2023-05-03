@@ -1,0 +1,36 @@
+{% comment %}
+    - Attribute 'data-customer-addresses' necessary in parent if you want to render 'customer-addresses' snippet
+{% endcomment %}
+
+<script src="{{ 'customer.js' | asset_url }}" defer></script>
+
+<div class="container mb-80" data-customer-addresses>
+    <div class="md:mb-48">
+        {% render 'customer-header' %}
+    </div>
+
+    <div class="row max-sm:flex-col">
+
+        {% render 'customer-menu' %}
+
+        <div class="w-full md:w-9/12">
+            {% render 'customer-return-button' %}
+            <h2 class="mb-20 h3 text-dark-subdued">{{ 'customer.orders.title' | t }}</h2>
+            {% paginate customer.orders by 20 %}
+                {%- if customer.orders.size > 0 -%}
+                    <ul>
+                        {%- for order in customer.orders -%}
+                            {% render 'customer-order-item', order: order, forloop: forloop %}
+                        {%- endfor -%}
+                    </ul>
+                {%- else -%}
+                    <p>{{ 'customer.orders.none' | t }}</p>
+                {%- endif -%}
+
+                {%- if paginate.pages > 1 -%}
+                    {% render 'pagination', paginate: paginate, anchor: '' %}
+                {%- endif -%}
+            {% endpaginate %}
+        </div>
+    </div>
+</div>

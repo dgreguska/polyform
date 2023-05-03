@@ -1,0 +1,100 @@
+{%- liquid
+    assign sort_by = results.sort_by | default: results.default_sort_by
+    assign total_active_values = 0
+    if results.url
+        assign results_url = results.url
+    else
+        assign terms = results.terms | escape
+        assign results_url = '?q=' | append: terms | append: '&options%5Bprefix%5D=last&sort_by=' | append: sort_by
+    endif
+-%}
+
+<facet-filters-form id="filters" class="max-md:sidebar z-1000">
+    <form id="FacetFiltersForm" class="h-full max-md:flex max-md:flex-col max-md:py-32">
+        {%- if results.terms -%}
+            <input type="hidden" name="q" value="{{ results.terms | escape }}">
+            <input name="options[prefix]" type="hidden" value="last">
+        {%- endif -%}
+
+        <header class="lg:hidden mb-24 flex justify-between max-md:px-20">
+            <p class="h4">Filter</p>
+            <div class="js-sidebar-toggle p-10 -mt-10" data-sidebar-target="filters">
+                {% render "icon-close", class: "w-24 h-24" %}
+            </div>
+        </header>
+
+        {% if enable_filtering %}
+            <div id="FacetsWrapperDesktop" class="max-md:h-full max-md:overflow-y-auto max-md:px-20">
+                <div class="lg:hidden flex items-center relative py-16 border-b border-light-material js-sorting">
+                        <span class="whitespace-nowrap text-dark-subdued text-p-small leading-tight mr-8">
+                            <label for="SortByMobile">{{ 'products.facets.sort_by_label' | t }}</label>
+                        </span>
+                    {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+                    <select id="SortByMobile" name="sort_by" class="w-full overflow-hidden bg-light outline-none"
+                            aria-describedby="a11y-refresh-page-message">
+                        {%- for option in collection.sort_options -%}
+                            <option value="{{ option.value | escape }}"
+                                    class="dropdown-menu-link"
+                            {% if option.value == sort_by %} selected="selected"{% endif %}>
+                                {{ option.name | escape }}</option>
+                        {%- endfor -%}
+                    </select>
+                </div>
+
+                {%- for filter in results.filters -%}
+                    {%- assign total_active_values = total_active_values | plus: filter.active_values.size -%}
+                    {% case filter.type %}
+                        {% when 'list' or 'boolean' %}
+                            {% if filter.label == 'Availability' %}
+                                {% render 'filter-toggle', forloop: forloop, filter: filter %}
+                            {% else %}
+                                <div class="js-filter{% unless forloop.last %} border-b border-light-material{% endunless %}{% if filter.label == 'Color' %} js-filter-colors{% endif %}"
+                                     data-index="{{ forloop.index }}">
+                                    <button type="button"
+                                            class="js-facets-summary collapse-btn w-full py-16 font-bold"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#Filter{{ filter.label | camelcase }}{{ forloop.index }}"
+                                            aria-controls="Filter{{ filter.label | camelcase }}{{ forloop.index }}"
+                                            aria-expanded="true">
+                                        {{ filter.label | escape }}
+                                        {% render "icon-down-arrow", class: "w-16 h-16" %}
+                                    </button>
+                                    <div id="Filter{{ filter.label | camelcase }}{{ forloop.index }}"
+                                         class="collapse show">
+                                         {% if filter.label == 'Color' %}
+                                            {% render 'filter-colors', filter: filter %}
+                                        {% elsif filter.label == 'Size' %}
+                                            {% render 'filter-sizes', filter: filter %}
+                                        {% elsif filter.label == 'Availability' %}
+                                        {% else %}
+                                            {% render 'filter-checkbox', filter: filter %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% when 'price_range' %}
+                            {% render 'filter-price-range', forloop:forloop, filter: filter %}
+                    {% endcase %}
+                {%- endfor -%}
+                <noscript>
+                    <button type="submit"
+                            class="facets__button-no-js button button--secondary">{{ 'products.facets.filter_button' | t }}</button>
+                </noscript>
+            </div>
+        {% endif %}
+
+        <footer class="lg:hidden grid grid-cols-2 gap-x-8 pt-16 border-t border-light-material max-md:px-20">
+            <facet-remove class="btn btn-outline cursor-pointer">
+                <a href="{{ results_url }}" class="text-dark-60 hover:text-negative">
+                    <span>{{ 'products.facets.clear_all' | t }}</span>
+                </a>
+            </facet-remove>
+            <button class="btn" type="submit">{{ 'products.facets.apply' | t }}</button>
+        </footer>
+
+        {% if results.current_vendor or results.current_type %}
+            <input type="hidden" name="q" value="{{ results.current_vendor }}{{ results.current_type }}">
+        {% endif %}
+
+    </form>
+</facet-filters-form>

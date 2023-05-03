@@ -1,0 +1,54 @@
+<div class="pt-8 pb-32">
+    <ul class="flex flex-wrap -mx-4">
+        {% liquid
+            assign colors = filter.values | sort_natural
+            assign uniqColors = ""
+            assign uniqColorsSorted = uniqColors | split: " " | uniq
+        %}
+
+        {% for value in colors %}
+            {% for product in collection.products %}
+                {% for variant in product.variants %}
+                    {% if variant.metafields.color.values and variant.title contains value.label %}
+                        {% liquid
+                            assign color = variant.metafields.color.values
+                            assign color_light = variant.metafields.color_light.value
+                        %}
+                        {% unless uniqColors contains color %}
+                            <li class="w-1/4 md:w-1/6 lg:w-1/4 p-4">
+                                <input type="checkbox"
+                                       name="{{ value.param_name }}"
+                                       value="{{ value.value }}"
+                                       id="Filter-{{ filter.label | escape }}-{{ variant.id }}"
+                                       class="color-input"
+                                       {% if value.active %}checked{% endif %}
+                                    {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                                >
+                                <label for="Filter-{{ filter.label | escape }}-{{ variant.id }}"
+                                       class="flex items-center">
+                                    <span class="visually-hidden">{{ value.label | escape }} ({% if colors.count == 1 %}{{ 'products.facets.product_count_simple.one' | t: count: value.count }}{% else %}{{ 'products.facets.product_count_simple.other' | t: count: value.count }}{% endif %})</span>
+                                    <span class="color-image{% if color_light %} border-light-material{% endif %}"
+                                          style="background-color: {{ color }}; {% unless color_light %}border-color: {{ color }}{% endunless %}">
+                                        {% liquid
+                                            if color_light
+                                                assign class = "text-brand"
+                                            else
+                                                assign class = "text-light"
+                                            endif
+                                        %}
+                                        {% render "icon-pipe", class: class %}
+                                    </span>
+                                    <span class="color-name block">
+                                        <small>{{ value.label | escape }}</small>
+                                    </span>
+                                </label>
+                            </li>
+                        {% endunless %}
+                        {% assign uniqColors = uniqColors | append: color | append: " " %}
+                        {% break %}
+                    {% endif %}
+                {% endfor %}
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</div>

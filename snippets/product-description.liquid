@@ -1,0 +1,26 @@
+{%- if product.description != blank -%}
+    {% liquid
+        assign desc_num = product.description | size
+        assign hide_text = false
+        if desc_num > 300
+            assign hide_text = true
+        endif
+    %}
+    <div class="mt-24{% if hide_text %} pb-14{% else %} pb-24{% endif %} text-p-small border-b border-light-material">
+        <div class="product-description text-dark-60{% if hide_text %} line-clamp-3{% endif %}"
+             data-text-id="{{ product.title | camelcase }}">
+            {{ product.description }}
+        </div>
+        {% if hide_text %}
+            <button class="py-10 flex items-center font-semibold js-show-more-button"
+                    type="button"
+                    data-text-target="{{ product.title | camelcase }}"
+                    data-text-show="{{ "products.facets.show_more" | t }}"
+                    data-text-hide="{{ "products.facets.show_less" | t }}"
+            >
+                <span>{{ "products.facets.show_more" | t }}</span>
+                {% render 'icon-down-arrow', class: "ml-8 w-16 h-16" %}
+            </button>
+        {% endif %}
+    </div>
+{%- endif -%}

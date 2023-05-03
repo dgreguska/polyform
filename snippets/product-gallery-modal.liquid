@@ -1,0 +1,178 @@
+{% liquid
+    assign media_size = product.media | size
+    assign selected_or_first_available = product.selected_or_first_available_variant.featured_media
+%}
+
+<div class="modal fade gallery-modal"
+     id="product-detail-modal"
+     role="dialog"
+     aria-hidden="true"
+     tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <ul class="flex h-full min-h-0 max-md:flex-col-reverse">
+                {% if media_size > 1 %}
+                    <li class="flex-shrink-0">
+                        <div class="h-full flex flex-col max-nd:border-t lg:border-r border-light-material">
+                            <div class="p-10 overflow-y-auto custom-scrollbar">
+                                <ul class="flex lg:flex-col gap-10">
+                                    {%- if selected_or_first_available != null -%}
+                                        {% assign num = 1 %}
+                                        {% render 'product-gallery-modal-thumbnail', forloop-index: 0, image: selected_or_first_available.preview_image %}
+                                        {% for media in product.media %}
+                                            {%- unless media.id == selected_or_first_available.id -%}
+                                                {% render 'product-gallery-modal-thumbnail', forloop-index: num, image: media.preview_image %}
+                                                {% assign num = num | plus: 1 %}
+                                            {% endunless %}
+                                        {% endfor %}
+                                    {% else %}
+                                        {% assign num = 0 %}
+                                        {% for media in product.media %}
+                                            {% render 'product-gallery-modal-thumbnail', forloop-index: num, image: media.preview_image %}
+                                            {% assign num = num | plus: 1 %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                {% endif %}
+                <li class="min-h-0 max-sm:h-full min-w-0 w-full flex flex-col">
+                    <div class="absolute top-16 right-16 flex-center w-44 h-44 bg-light border border-light-material rounded-full cursor-pointer transition-colors hover:bg-light-material z-10"
+                         data-bs-dismiss="modal" aria-label="close">
+                        {% render "icon-close", class: "w-16 h-16" %}
+                    </div>
+                    <div class="min-h-0 h-full max-md:rounded-0">
+
+                        <div class="js-gallery-glider h-full relative"
+                             data-generic-slider="product-gallery-modal-{{ product.id }}"
+                             data-num-slides="{{ product.media | size }}">
+                            <div data-glide-el="track" class="glide__track h-full overflow-hidden">
+                                <div class="glide__slides w-full h-full">
+                                    {% if selected_or_first_available != null %}
+                                        {% render 'product-gallery-modal-item', image: selected_or_first_available.preview_image %}
+                                    {% endif %}
+                                    {% for media in product.media %}
+                                        {% if media.media_type == 'image' %}
+                                            {% unless media.id == selected_or_first_available.id %}
+                                                {% render 'product-gallery-modal-item', image: media.preview_image %}
+                                            {% endunless %}
+                                        {% endif %}
+                                        {%- if media.media_type != 'image' -%}
+                                            <div class="glide__slide h-full">
+                                                <div class="h-full bg-light lg:p-24 relative flex-center">
+                                                {%- if media.media_type == 'model' -%}
+                                                    <product-model
+                                                            class="deferred-media media media--transparent gradient global-media-settings no-js-hidden"
+                                                            style="padding-top: 100%" data-media-id="{{ media.id }}">
+                                                        {%- else -%}
+                                                        <deferred-media
+                                                                class="deferred-media w-full h-full"
+                                                                data-media-id="{{ media.id }}">
+                                                            {%- endif -%}
+                                                            <button id="Deferred-Poster-Modal-{{ media.id }}"
+                                                                    class="group w-full h-full deferred-media__poster bg-dark-10 cursor-pointer"
+                                                                    type="button">
+                                                                <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 flex-center">
+                                                                    {%- if media.media_type == 'model' -%}
+                                                                        <span class="visually-hidden">{{ 'products.product.media.play_model' | t }}</span>
+                                                                        {%- render 'icon-3d-model' -%}
+                                                                    {%- else -%}
+                                                                        <span class="visually-hidden">{{ 'products.product.media.play_video' | t }}</span>
+                                                                        <div class="flex-center w-72 h-72 bg-light rounded-full transition-transform group-hover:scale-110"
+                                                                             aria-hidden="true">
+                                                                            {% render "icon-play", class: "w-56 h-56 text-dark-material" %}
+                                                                        </div>
+                                                                    {%- endif -%}
+                                                                </span>
+                                                                <picture>
+                                                                    <source media="(min-width: 688px)"
+                                                                            data-srcset="{{ media.preview_image | image_url: width: 688 }},
+                                                                                {{ media.preview_image | image_url: width: 1376 }} 2x"/>
+                                                                    <source media="(min-width: 550px)"
+                                                                            data-srcset="{{ media.preview_image | image_url: width: 550 }},
+                                                                                {{ media.preview_image | image_url: width: 1110 }} 2x"/>
+                                                                    <source media="(min-width: 375px)"
+                                                                            data-srcset="{{ media.preview_image | image_url: width: 375 }},
+                                                                                {{ media.preview_image | image_url: width: 750 }} 2x"/>
+                                                                    <source media="(min-width: 165px)"
+                                                                            data-srcset="{{ media.preview_image | image_url: width: 165 }},
+                                                                                {{ media.preview_image | image_url: width: 330 }} 2x"/>
+                                                                    <img data-src="{{ media.preview_image | image_url: width: 688 }}"
+                                                                         alt="{{ media.preview_image.alt }}"
+                                                                         class="lazyload w-full object-scale-down">
+                                                                </picture>
+                                                            </button>
+                                                            <template>
+                                                                {%- liquid
+                                                                    case media.media_type
+                                                                        when 'external_video'
+                                                                            assign video_class = 'max-md:h-300 w-full h-full js-' | append: media.host
+                                                                            if media.host == 'youtube'
+                                                                                echo media | external_video_url: autoplay: true, loop: loop, playlist: media.external_id | external_video_tag: width: 688, class: video_class, loading: "lazy"
+                                                                            else
+                                                                                echo media | external_video_url: autoplay: true, loop: loop | external_video_tag: class: video_class, loading: "lazy"
+                                                                            endif
+                                                                        when 'video'
+                                                                            echo media | media_tag: image_size: "2048x", autoplay: true, loop: loop, controls: true, preload: "none"
+                                                                        when 'model'
+                                                                            echo media | media_tag: image_size: "2048x", toggleable: true
+                                                                    endcase
+                                                                -%}
+                                                            </template>
+
+                                                            {%- if media.media_type == 'model' -%}
+                                                    </product-model>
+                                                    {%- if xr_button -%}
+                                                        <button
+                                                                class="button button--full-width product__xr-button"
+                                                                type="button"
+                                                                aria-label="{{ 'products.product.xr_button_label' | t }}"
+                                                                data-shopify-xr
+                                                                data-shopify-model3d-id="{{ media.id }}"
+                                                                data-shopify-title="title"
+                                                                data-shopify-xr-hidden
+                                                        >
+                                                            {% render 'icon-3d-model' %}
+                                                            {{ 'products.product.xr_button' | t }}
+                                                        </button>
+                                                    {%- endif -%}
+                                                {%- else -%}
+                                                    </deferred-media>
+                                                    {%- endif -%}
+
+                                                </div>
+
+                                            </div>
+                                        {%- endif -%}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            {% if media_size > 1 %}
+                                <div class="max-md:hidden flex items-center bg-light-75 blur-sm absolute bottom-16 left-1/2 -translate-x-1/2 rounded-button overflow-hidden"
+                                     data-glide-el="controls">
+                                    <button class="w-44 h-44 hover:bg-light z-10"
+                                            type="button"
+                                            data-glide-dir="<"
+                                            aria-label="Previous slide">
+                                        {% render "icon-right-arrow-big", class: "w-16 h-16 rotate-180" %}
+                                    </button>
+                                    <div class="flex items-center text-p-small text-dark-60 px-10">
+                                        <span class="js-gallery-active-slide">1</span>&nbsp;/&nbsp;<span>{{ product.media | size }}</span>
+                                    </div>
+                                    <button class="w-44 h-44 hover:bg-light z-10"
+                                            type="button"
+                                            data-glide-dir=">"
+                                            aria-label="Next slide">
+                                        {% render "icon-right-arrow-big", class: "w-16 h-16" %}
+                                    </button>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>

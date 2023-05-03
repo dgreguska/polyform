@@ -1,0 +1,82 @@
+<div class="row max-sm:flex-col">
+    <div class="w-full lg:w-7/12">
+        <div class="lg:mr-48">
+            {% render "quick-view-gallery", section: section, product: product, media_size: section.settings.media_size, hide_variants: section.settings.hide_variants, video_looping: section.settings.enable_video_looping, mobile_thumbnails: section.settings.mobile_thumbnails, gallery_layout: section.settings.gallery_layout, sticky_info: section.settings.enable_sticky_info %}
+        </div>
+    </div>
+    <div class="w-full lg:w-5/12">
+        <div>
+            {%- assign product_form_id = 'product-form-' | append: product.id -%}
+
+            <p class="mb-12">{{ product.vendor }}</p>
+            <h1 class="h3">{{ product.title | escape }}</h1>
+
+            <div class="mt-16 md:mt-32">
+                {% render "product-detail-price", section: section, product: product %}
+            </div>
+
+            {%- if product.description != blank -%}
+                <div class="py-24 text-p-small border-b border-light-material">
+                    <div class="product-description text-dark-material overflow-auto custom-scrollbar line-clamp-3">
+                        {{ product.description }}
+                    </div>
+                </div>
+            {%- endif -%}
+
+            {% assign current_variant = product.selected_or_first_available_variant %}
+            {% if current_variant %}
+                {% render 'product-stock-state', current_variant: current_variant, class: " py-24 border-b border-light-material" %}
+            {% endif %}
+
+            <div class="product-form__error-message-wrapper mt-24 p-16 bg-negative-25 border border-negative rounded-md"
+                 role="alert" hidden>
+                <p class="product-form__error-message text-p-small text-brand font-bold"></p>
+            </div>
+
+            <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+            <div class="mt-32" {{ block.shopify_attributes }}>
+                {%- if product != blank -%}
+                    <product-form class="h-full" data-cart-type="{{ settings.cart_type }}">
+                        {%- form 'product', product, class: 'h-full', id: product_form_id, novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+                            <input type="hidden" name="id"
+                                   value="{{ product.selected_or_first_available_variant.id }}"
+                                   disabled>
+                            <button type="submit"
+                                    name="add"
+                                    data-bs-dismiss="modal"
+                                    class="btn btn-primary btn-large w-full h-full uppercase"
+                                    {% if quick_view %}data-bs-dismiss="modal"{% endif %}
+                                {% if product.selected_or_first_available_variant.available == false %}disabled{% endif %}
+                            >
+                            <span>
+                                {%- if product.selected_or_first_available_variant.available -%}
+                                    {{ 'products.product.add_to_cart' | t }}
+                                {%- else -%}
+                                    {{ 'products.product.sold_out' | t }}
+                                {%- endif -%}
+                              </span>
+                            </button>
+                            {%- if block.settings.show_dynamic_checkout -%}
+                                {{ form | payment_button }}
+                            {%- endif -%}
+                        {%- endform -%}
+                    </product-form>
+                {%- else -%}
+                    <div class="product-form">
+                        <div class="form">
+                            <button type="submit"
+                                    name="add"
+                                    class="btn btn-primary btn-large w-full h-full font-semibold uppercase"
+                                    disabled
+                            >
+                                {{ 'products.product.sold_out' | t }}
+                            </button>
+                        </div>
+                    </div>
+                {%- endif -%}
+            </div>
+            <a href="{{ product.url }}"
+               class="mt-12 w-full btn btn-large btn-outline uppercase">{{ 'products.product.show_details' | t }}</a>
+        </div>
+    </div>
+</div>

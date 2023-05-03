@@ -1,0 +1,20 @@
+<modal-quick-view>
+    <div id="quickView_product" class="modal fade" aria-hidden="true"
+         tabindex="-1">
+        <div class="modal-dialog quick-view">
+            <div class="modal-content">
+                <div class="modal-body p-0 max-sm:flex max-sm:flex-col md:h-auto">
+                    {% render "loader", add_classes: 'absolute' %}
+                    <div class="p-32 pt-40">
+                        <div class="group absolute top-10 md:top-24 right-10 md:right-24 -m-10 p-10 cursor-pointer"
+                             data-bs-dismiss="modal">
+                            {% render 'icon-close', class: "w-24 h-24 text-dark-material transition-transform group-hover:rotate-90" %}
+                        </div>
+
+                        {% render "product-quick-view-modal", product: card_product, section: section %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</modal-quick-view>

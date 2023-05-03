@@ -1,0 +1,43 @@
+{% comment %}
+    - Attribute 'data-customer-addresses' necessary in parent if you want to render 'customer-addresses' snippet
+{% endcomment %}
+
+<script src="{{ 'customer.js' | asset_url }}" defer></script>
+
+<div class="container mb-80" data-customer-addresses>
+    <div class="md:mb-48">
+        {% render 'customer-header', active: 'Addresses' %}
+    </div>
+    <div class="row">
+
+        {% render 'customer-menu' %}
+
+        <div class="w-full md:w-9/12">
+            {% render 'customer-return-button' %}
+            <div class="mb-40 flex items-center flex-wrap gap-16">
+                <h2 class="h3 mr-auto">{{ "customer.addresses.title" | t }}</h2>
+                <button class="btn btn-outline md:btn-large items-center"
+                        type="button"
+                        id="AddressNewHeading"
+                        data-bs-toggle="modal"
+                        data-bs-target="#AddAddress"
+                        aria-label="{{ 'customer.addresses.add_new' | t }}"
+                        aria-controls="AddAddress">
+                    {% render "icon-plus", class: "w-16 h-16 mr-8" %}
+                    <span>{{ "customer.addresses.add_new" | t }}</span>
+                </button>
+            </div>
+            <ul class="grid lg:grid-cols-3 gap-16 md:gap-32" data-customer-addresses>
+                {%- for address in customer.addresses -%}
+                    {% render 'customer-address-item', address: address, modal: true %}
+                {%- endfor -%}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = () => {
+        typeof CustomerAddresses !== 'undefined' && new CustomerAddresses();
+    }
+</script>

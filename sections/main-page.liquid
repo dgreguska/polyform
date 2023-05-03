@@ -1,0 +1,16 @@
+<div class="container max-sm:mb-40 mb-56">
+    <div class="w-full lg:w-2/3 mx-auto">
+        <section class="py-12 md:py-24 mb-24 max-sm:mb-16">
+            {% render 'breadcrumbs' %}
+        </section>
+
+        <div class="rich-text">
+            <h1>
+                {{ page.title | escape }}
+            </h1>
+            <div>
+                {{ page.content }}
+            </div>
+        </div>
+    </div>
+</div>

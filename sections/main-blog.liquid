@@ -1,0 +1,90 @@
+<div class="container">
+    <section class="py-12 md:py-24 max-sm:mb-16">
+        {% render 'breadcrumbs' %}
+    </section>
+
+    <div class="mt-16 lg:mt-32 flex flex-wrap gap-32 justify-between items-center">
+        <h1 class="h2">{{ blog.title }}</h1>
+        <div class="max-xs:-mx-20 overflow-hidden">
+            <ul class="nav blog-nav-tabs -m-4 max-sm:pb-4 flex md:flex-wrap overflow-x-auto" role="tablist">
+                <li class="sm:hidden p-4" role="presentation">
+                    <div class="w-12"></div>
+                </li>
+                <li class="p-4" role="presentation">
+                    <button id="btn-blog-all"
+                            class="tab-link btn btn-outline bg-light whitespace-nowrap active"
+                            type="button"
+                            role="tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#blog-all"
+                            aria-controls="blog-all"
+                            aria-selected="true">
+                        {{ 'blogs.tags.all' | t }}
+                    </button>
+                </li>
+                {%- for tag in blog.all_tags -%}
+                    <li class="p-4" role="presentation">
+                        <button id="btn-blog-{{ tag }}-{{ forloop.index }}"
+                                class="tab-link btn whitespace-nowrap btn-outline bg-light hover:bg-light"
+                                type="button"
+                                role="tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#blog-{{ tag }}-{{ forloop.index }}"
+                                aria-controls="blog-{{ tag }}-{{ forloop.index }}"
+                                aria-selected="false">
+                            {{ tag }}
+                        </button>
+                    </li>
+                {%- endfor -%}
+                <li class="sm:hidden p-4" role="presentation">
+                    <div class="w-12"></div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="pt-16 md:pt-56 pb-56 md:pb-72">
+    <div class="container">
+        <div class="mt-32">
+            <div id="blog-all" class="tab-pane fade show active" role="tabpanel" aria-labelledby="btn-blog-all">
+                {%- paginate blog.articles by 9 -%}
+                    <ul class="grid gap-48 lg:gap-72">
+                        {%- for article in blog.articles -%}
+                            <li>
+                                {% render 'article-main', article: article %}
+                            </li>
+                        {%- endfor -%}
+                    </ul>
+                    {%- if paginate.pages > 1 -%}
+                        {%- render 'pagination', paginate: paginate -%}
+                    {%- endif -%}
+                {%- endpaginate -%}
+            </div>
+
+            {%- for tag in blog.all_tags -%}
+                <div id="blog-{{ tag }}-{{ forloop.index }}" class="tab-pane fade" role="tabpanel"
+                     aria-labelledby="btn-blog-{{ tag }}-{{ forloop.index }}">
+                    {%- paginate blog.articles by 9 -%}
+                        <ul class="grid gap-48 lg:gap-72">
+                            {% liquid
+                                for article in blog.articles
+                                    assign tags_size = article.tags | size
+                                    if tags_size > 0
+                                        for tag_article in article.tags
+                                            if tag_article == tag
+                                                echo '<li>'
+                                                render 'article-main', article: article
+                                                echo '</li>'
+                                            endif
+                                        endfor
+                                    endif
+                                endfor
+                            %}
+                        </ul>
+                    {%- endpaginate -%}
+                </div>
+            {%- endfor -%}
+        </div>
+    </div>
+</div>

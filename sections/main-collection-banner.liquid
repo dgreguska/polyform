@@ -1,0 +1,167 @@
+{% render 'section-padding', id: section.id, padding_top: section.settings.padding_top, padding_bottom: section.settings.padding_bottom %}
+
+{% assign text_color = section.settings.text_color %}
+
+<div class="mb-32 relative overflow-hidden{% if section.settings.show_collection_image %} max-sm:flex max-sm:flex-wrap{% endif %}{% if section.settings.show_border %} border-b border-light-material{% endif %}"
+     style="background-color: {{ section.settings.bg_color }}">
+    {% if section.settings.show_collection_image %}
+        <div class="max-sm:order-1 md:absolute md:top-0 md:left-0 w-full md:h-full md:flex max-sm:h-240 max-sm:mt-16">
+            <div class="md:w-1/2 md:ml-auto w-full h-full">
+                {%- if section.settings.show_collection_image and collection.featured_image -%}
+                    <picture>
+                        <source media="(min-width: 2048)"
+                                srcset="{{ collection.featured_image | image_url: width: 840 }},
+                                {{ collection.featured_image | image_url: width: 1024 }} 2x"/>
+                        <source media="(min-width: 1680px)"
+                                srcset="{{ collection.featured_image | image_url: width: 840 }},
+                                {{ collection.featured_image | image_url: width: 1680 }} 2x"/>
+                        <source media="(min-width: 1445px)"
+                                srcset="{{ collection.featured_image | image_url: width: 770 }},
+                                {{ collection.featured_image | image_url: width: 1440 }} 2x"/>
+                        <source media="(min-width: 1200px)"
+                                srcset="{{ collection.featured_image | image_url: width: 600 }},
+                                {{ collection.featured_image | image_url: width: 1200 }} 2x"/>
+                        <source media="(min-width: 990px)"
+                                srcset="{{ collection.featured_image | image_url: width: 495 }},
+                                {{ collection.featured_image | image_url: width: 990 }} 2x"/>
+                        <source media="(min-width: 768px)"
+                                srcset="{{ collection.featured_image | image_url: width: 384 }},
+                                {{ collection.featured_image | image_url: width: 768 }} 2x"/>
+                        <source media="(min-width: 550px)"
+                                srcset="{{ collection.featured_image | image_url: width: 550 }},
+                                {{ collection.featured_image | image_url: width: 1110 }} 2x"/>
+                        <source media="(min-width: 375px)"
+                                srcset="{{ collection.featured_image | image_url: width: 375 }},
+                                {{ collection.featured_image | image_url: width: 750 }} 2x"/>
+                        <source media="(min-width: 165px)"
+                                srcset="{{ collection.featured_image | image_url: width: 165 }},
+                                {{ collection.featured_image | image_url: width: 330 }} 2x"/>
+                        {{ collection.featured_image | image_url: width: 770, crop: "center" | image_tag:
+                        class: "w-full h-full object-cover",
+                        alt: collection.featured_image.alt }}
+                    </picture>
+                {%- endif -%}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="container relative">
+        <div class="grid md:grid-cols-2 items-center">
+            <div class="w-full h-full relative md:flex-center{% if section.settings.show_collection_image and collection.featured_image %} md:min-h-400 lg:min-h-580{% endif %}"
+            >
+                <section class="md:absolute md:left-0 md:top-0 py-12 md:py-24 max-sm:mb-16">
+                    {% render 'breadcrumbs', class: text_color %}
+                </section>
+                <div class="w-full md:py-80 md:pr-40 xl:pr-120">
+                    <h1 class="h1{% unless text_color == "text-dark" %} {{ text_color }}{% endunless %}">
+                        <span class="visually-hidden">{{ 'sections.collection_template.title' | t }}: </span>
+                        {{- collection.title | escape -}}
+                    </h1>
+                    {%- if section.settings.show_collection_description and collection.description != blank -%}
+                        {% liquid
+                            assign desc_num = collection.description | size
+                            assign hide_text = false
+                            if desc_num > 300
+                                assign hide_text = true
+                            endif
+                        %}
+                        <div class="mt-16 md:mt-24 max-sm:text-p-small{% if hide_text %} line-clamp-3{% endif %}{% if text_color == "text-dark" %} text-dark-60{% else %} text-light{% endif %}"
+                             data-text-id="{{ product.title | camelcase }}-{{ section.id }}"
+                        >
+                            {{ collection.description }}
+                        </div>
+                        {% if hide_text %}
+                            <button class="py-10 mt-8 md:mt-14 flex items-center font-semibold js-show-more-button{% if text_color == "text-light" %} {{ text_color }}{% endif %}"
+                                    type="button"
+                                    data-text-target="{{ product.title | camelcase }}-{{ section.id }}"
+                                    data-text-show="{{ "products.facets.show_more" | t }}"
+                                    data-text-hide="{{ "products.facets.show_less" | t }}"
+                            >
+                                <span>{{ "products.facets.show_more" | t }}</span>
+                                {% render 'icon-down-arrow', class: "ml-8 w-16 h-16" %}
+                            </button>
+                        {% endif %}
+                    {%- endif -%}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main-collection-banner.name",
+  "class": "section",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-collection-banner.settings.paragraph.content"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "default": "#ffffff",
+      "label": "t:sections.featured-blog.background_color"
+    },
+    {
+      "type": "select",
+      "id": "text_color",
+      "options": [
+        {
+          "value": "text-dark",
+          "label": "t:sections.header.settings.text_theme.options.dark"
+        },
+        {
+          "value": "text-light",
+          "label": "t:sections.header.settings.text_theme.options.light"
+        }
+      ],
+      "default": "text-dark",
+      "label": "t:sections.header.settings.text_theme.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_border_bottom",
+      "default": true,
+      "label": "t:sections.main-collection-banner.settings.show_border_bottom.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_description",
+      "default": true,
+      "label": "t:sections.main-collection-banner.settings.show_collection_description.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "default": true,
+      "label": "t:sections.main-collection-banner.settings.show_collection_image.label",
+      "info": "t:sections.main-collection-banner.settings.show_collection_image.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 40
+    }
+  ]
+}
+{% endschema %}

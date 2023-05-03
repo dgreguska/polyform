@@ -1,0 +1,205 @@
+<script src="{{ 'details-disclosure.js' | asset_url }}" defer="defer"></script>
+<script src="{{ 'cart-notification.js' | asset_url }}" defer="defer"></script>
+{%- if settings.cart_type == "drawer" and request.path != routes.cart_url -%}
+    <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{% liquid
+    assign menu_type = settings.menu_type_desktop
+    assign logo_light = section.settings.logo_light
+    assign logo_dark = section.settings.logo_dark
+%}
+
+<div class="header-text-theme relative py-8 md:py-24 border-b ">
+    <section class="relative{% if menu_type == "menu_1" %} md:pb-16 menu-1{% else %} menu-2{% endif %}">
+        <div class="container flex items-center">
+
+            {% render "header-logo", logo_light: logo_light, logo_dark: logo_dark, logo_width: section.settings.logo_width %}
+            {% render "header-predictive-search", menu: menu_type %}
+
+            {%- if section.settings.menu != blank and menu_type == "menu_2" -%}
+                {% render "main-menu", links: section.settings.menu.links, menu: menu_type %}
+            {%- endif -%}
+
+            <div class="flex items-center text-p-small{% if menu_type == "menu_2" %} js-header-hide ml-auto{% endif %}">
+                {% if section.settings.enable_country_selector and localization.available_countries.size > 1 %}
+                    <div class="max-sm:hidden">
+                        <localization-form>
+                            {%- form 'localization', id: 'HeaderCountryForm', class: 'localization-form' -%}
+                                <div class="relative">
+                                    <button type="button"
+                                            data-bs-toggle="dropdown"
+                                            aria-expanded="false"
+                                            aria-controls="HeaderCountryList"
+                                            aria-describedby="HeaderCountryLabel"
+                                            data-bs-display="static"
+                                            class="flex items-center text-p font-bold py-8 px-10 rounded-button hover:text-brand hover:bg-light-surface transition-colors">
+                                        {{ localization.country.currency.iso_code }}
+                                        {% render "icon-right-arrow-big", class: "ml-4 w-16 h-16 rotate-90" %}
+                                    </button>
+                                    <ul id="HeaderCountryList" role="list"
+                                        class="dropdown-menu fade left-auto right-0">
+                                        {%- for country in localization.available_countries -%}
+                                            <li class="disclosure__item" tabindex="-1">
+                                                <a class="dropdown-menu-link{% if country.iso_code == localization.country.iso_code %} text-brand{% endif %}"
+                                                   href="#"{% if country.iso_code == localization.country.iso_code %} aria-current="true"{% endif %}
+                                                   data-value="{{ country.iso_code }}">
+                                                    {{ country.name }}
+                                                    <span>({{ country.currency.iso_code }} {{ country.currency.symbol }})</span>
+                                                </a>
+                                            </li>
+                                        {%- endfor -%}
+                                    </ul>
+                                    <input type="hidden" name="country_code"
+                                           value="{{ localization.country.iso_code }}">
+                                </div>
+                            {%- endform -%}
+                        </localization-form>
+                    </div>
+                {% endif %}
+
+                {% comment %}Mobile search icon{% endcomment %}
+                <a href="#"
+                   class="js-open-search flex p-10 md:mx-4{% if menu_type == 'menu_1' %} md:hidden{% elsif menu_type == 'menu_2' %} lg:hidden{% endif %}">
+                    {% render "icon-search", class: 'w-24 h-24' %}
+                    <span class="visually-hidden">Search</span>
+                </a>
+
+                {% render "header-customer-icon", icon_classes: 'header-customer-icon w-24 h-24' %}
+
+                {% if menu_type == 'menu_2' %}
+                    <button type="button"
+                            class="js-open-search js-icon-search group flex max-md:hidden p-10 md:mx-4 transition-colors hover:bg-light-surface cursor-pointer">
+                        {% render "icon-search", class: 'header-icon-search-2 w-24 h-24' %}
+                        <span class="visually-hidden">Search</span>
+                    </button>
+                {% endif %}
+
+                <a href="{{ routes.cart_url }}" id="basketIcon"
+                   class="flex items-center md:mx-4 rounded-button hover:bg-light-surface cursor-pointer">
+                    <div class="flex relative p-10">
+                        {% render "icon-cart", class: "w-24 h-24" %}
+
+                        <div id="cart-icon-bubble"
+                             class="{% if cart.item_count == 0 %}hidden {% else %}flex-center {% endif %}w-16 h-16 absolute right-0 top-0 bg-dark text-p-mini text-light rounded-full">
+                            {{ cart.item_count }}
+                        </div>
+
+                        <span class="visually-hidden">{{ 'sections.header.cart_count' | t: count: cart.item_count }}</span>
+                    </div>
+
+                    <div id="cart-price"
+                         class="p-10 pl-4 whitespace-nowrap{% if cart.item_count == 0 %} hidden{% endif %}{% if menu_type == 'menu_1' %} max-sm:hidden{% elsif menu_type == 'menu_2' %} max-md:hidden{% endif %}">
+                        {% if settings.currency_code_enabled %}
+                            {{ cart.total_price | money_with_currency }}
+                        {% else %}
+                            {{ cart.total_price | money }}
+                        {% endif %}
+                    </div>
+                </a>
+
+                <div class="js-sidebar-toggle menu-icon-wrapper flex p-10 -mr-4{% if menu_type == 'menu_1' %} md:hidden{% elsif menu_type == 'menu_2' %} lg:hidden{% endif %}"
+                     data-sidebar-target="mobile-menu">
+                    {% render "icon-menu", class: 'w-24 h-24' %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        {%- if section.settings.menu != blank and menu_type == "menu_1" -%}
+            {% render "main-menu", links: section.settings.menu.links, menu: menu_type %}
+        {%- endif -%}
+
+        {% render 'mobile-menu', logo: section.settings.logo_dark, logo_width: section.settings.logo_width %}
+    </section>
+</div>
+
+{%- if settings.cart_type == "notification" -%}
+    {%- render 'cart-notification', color_scheme: section.settings.color_scheme -%}
+{%- endif -%}
+
+<script type="application/ld+json">
+  {
+    "@context": "http://schema.org",
+    "@type": "Organization",
+    "name": {{ shop.name | json }},
+    {% if section.settings.logo %}
+      "logo": {{ section.settings.logo | image_url: width: section.settings.logo.width | prepend: "https:" | json }},
+    {% endif %}
+    "sameAs": [
+      {{ settings.social_twitter_link | json }}
+      {{ settings.social_facebook_link | json }}
+      {{ settings.social_pinterest_link | json }}
+      {{ settings.social_instagram_link | json }}
+      {{ settings.social_tiktok_link | json }}
+      {{ settings.social_tumblr_link | json }}
+      {{ settings.social_snapchat_link | json }}
+      {{ settings.social_youtube_link | json }}
+      {{ settings.social_vimeo_link | json }}
+    ],
+    "url": {{ request.origin | append: page.url | json }}
+  }
+</script>
+
+{%- if request.page_type == 'index' -%}
+    {% assign potential_action_target = request.origin | append: routes.search_url | append: "?q={search_term_string}" %}
+    <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {{ potential_action_target | json }},
+        "query-input": "required name=search_term_string"
+      },
+      "url": {{ request.origin | append: page.url | json }}
+    }
+    </script>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "t:sections.header.name",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo_dark",
+      "label": "t:sections.header.settings.logo.dark"
+    },
+    {
+      "type": "image_picker",
+      "id": "logo_light",
+      "label": "t:sections.header.settings.logo.light.label"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "default": 150,
+      "unit": "t:sections.header.settings.logo_width.unit",
+      "label": "t:sections.header.settings.logo_width.label"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "default": "main-menu",
+      "label": "t:sections.header.settings.menu.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header__3.content",
+      "info": "t:sections.footer.settings.header__4.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "default": true,
+      "label": "t:sections.footer.settings.enable_country_selector.label"
+    }
+  ]
+}
+{% endschema %}

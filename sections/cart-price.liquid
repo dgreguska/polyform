@@ -1,0 +1,9 @@
+{%- if cart != empty -%}
+    <span class="max-sm:hidden">
+        {% if settings.currency_code_enabled %}
+            {{ cart.total_price | money_with_currency }}
+        {% else %}
+            {{ cart.total_price | money }}
+        {% endif %}
+    </span>
+{%- endif -%}

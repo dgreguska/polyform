@@ -1,0 +1,14 @@
+{%- liquid assign rem_unit = 16.0 -%}
+{%- style -%}
+    .section-{{ id }}-padding {
+        padding-top: {{ padding_top | times: 0.75 | round: 0 | divided_by: rem_unit }}rem;
+        padding-bottom: {{ padding_bottom | times: 0.75 | round: 0 | divided_by: rem_unit }}rem;
+    }
+
+    @media screen and (min-width: 768px) {
+        .section-{{ section.id }}-padding {
+            padding-top: {{ padding_top | divided_by: rem_unit }}rem;
+            padding-bottom: {{ padding_bottom | divided_by: rem_unit }}rem;
+        }
+    }
+{%- endstyle -%}

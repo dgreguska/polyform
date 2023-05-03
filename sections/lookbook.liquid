@@ -1,0 +1,253 @@
+{% render 'section-padding', id: section.id, padding_top: section.settings.padding_top, padding_bottom: section.settings.padding_bottom %}
+
+{%- if section.settings.product_hover_button != "none" -%}
+    <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- assign slides_number = section.settings.product_list.count -%}
+
+<div class="section-{{ section.id }}-padding"
+     style="background-color: {{ section.settings.background_color }}" {{ block.shopify_attributes }}>
+    <div class="container">
+        {% if section.settings.heading != blank %}
+            <h2 class="h3 mb-32{% if section.settings.text_theme == "light" %} text-light{% endif %}">{{ section.settings.heading | escape }}</h2>
+        {% endif %}
+        <ul class="flex flex-center flex-wrap">
+            <li class="md:flex-shrink-0 w-full md:w-1/2">
+                {% if section.settings.slide_image %}
+                    {% liquid
+                        assign page_width = 1440 | minus: 32
+                        assign img_size = page_width | divided_by: 2
+                        assign img_size_2x = img_size | times: 2
+                        assign img_alt = section.settings.slide_image.alt | default: section.id
+                    %}
+                    <picture>
+                        <source media="(min-width: 1439px)"
+                                srcset="{{ section.settings.slide_image | image_url: width: img_size, height: img_size }},
+                                        {{ section.settings.slide_image | image_url: width: img_size_2x, height: img_size_2x }} 2x"/>
+                        <source media="(min-width: 1199px)"
+                                srcset="{{ section.settings.slide_image | image_url: width: 560, height: 560 }},
+                                        {{ section.settings.slide_image | image_url: width: 1120, height: 1120 }} 2x"/>
+                        <source media="(min-width: 991px)"
+                                srcset="{{ section.settings.slide_image | image_url: width: 464, height: 464 }},
+                                        {{ section.settings.slide_image | image_url: width: 928, height: 928 }} 2x"/>
+                        <source media="(min-width: 767px)"
+                                srcset="{{ section.settings.slide_image | image_url: width: 344, height: 344 }},
+                                        {{ section.settings.slide_image | image_url: width: 688, height: 688 }} 2x"/>
+                        <source media="(min-width: 550x)"
+                                srcset="{{ section.settings.slide_image | image_url: width: 550 }},
+                                        {{ section.settings.slide_image | image_url: width: 1110 }} 2x"/>
+                        <source media="(min-width: 360px)"
+                                srcset="{{ section.settings.slide_image | image_url: width: 360 }},
+                                        {{ section.settings.slide_image | image_url: width: 720 }} 2x"/>
+                        <source media="(min-width: 165px)"
+                                srcset="{{ section.settings.slide_image | image_url: width: 165 }},
+                                        {{ section.settings.slide_image | image_url: width: 330 }} 2x"/>
+                        {{ section.settings.slide_image | image_url: height: 704 | image_tag:
+                            alt: img_alt,
+                            loading: "lazy",
+                            class: "w-full object-cover"
+                        }}
+                    </picture>
+                {% else %}
+                    {{ 'image' | placeholder_svg_tag: 'w-full max-w-full object-cover' }}
+                {% endif %}
+            </li>
+            <li class="md:flex-shrink-0 w-full md:w-1/2 md:pl-80 max-sm:pt-32">
+                <div class="glide slider">
+                    <div data-generic-slider="slider-{{ section.id }}"
+                         data-num-slides="{{ slides_number }}" class="relative">
+                        <div data-glide-el="track"
+                             class="glide__track h-full">
+                            <div class="glide__slides">
+                                {% for product in section.settings.product_list limit: section.settings.products_to_show %}
+                                    <div class="glide__slide">
+                                        {% render 'card-product',
+                                                card_product: product,
+                                                show_vendor: section.settings.show_vendor,
+                                                show_secondary_image: section.settings.show_secondary_image,
+                                                show_stock_state: section.settings.show_stock_state,
+                                                button: section.settings.product_hover_button,
+                                                section_id: section.id,
+                                                lookbook: true,
+                                                lookbookClasses: 'md:h-250 lg:h-320 xl:h-450 2xl:h-600',
+                                                section: section,
+                                                text_theme: section.settings.text_theme
+                                        %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% if slides_number > 1 %}
+                            <div data-glide-el="controls">
+                                <div class="group px-6 absolute top-1/2 -left-16 sm:-left-48 -translate-y-1/2 cursor-pointer"
+                                     data-glide-dir="<">
+                                    <button class="btn btn-outline p-0 w-32 h-64 bg-light border-light-material group-hover:bg-light group-hover:border-dark"
+                                            type="button"
+                                            aria-label="Previous slide">
+                                        {% render "icon-right-arrow-big", class: "w-16 h-16 rotate-180" %}
+                                    </button>
+                                </div>
+                                <div class="group px-6 absolute top-1/2 -right-16 sm:-right-48 -translate-y-1/2 cursor-pointer"
+                                     data-glide-dir=">">
+                                    <button class="btn btn-outline p-0 w-32 h-64 bg-light border-light-material group-hover:bg-light group-hover:border-dark"
+                                            type="button"
+                                            aria-label="Next slide">
+                                        {% render "icon-right-arrow-big", class: "w-16 h-16" %}
+                                    </button>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% for product in section.settings.product_list limit: section.settings.products_to_show %}
+                    <div id="quickView{{ product.title | camelcase }}" class="modal fade" aria-hidden="true"
+                         tabindex="-1">
+                        <div class="modal-dialog quick-view">
+                            <div class="modal-content">
+                                <div class="modal-body p-0 max-sm:flex max-sm:flex-col md:h-auto">
+                                    <div class="p-32 pt-40">
+                                        <div class="group absolute top-10 md:top-24 right-10 md:right-24 -m-10 p-10 cursor-pointer"
+                                             data-bs-dismiss="modal">
+                                            {% render 'icon-close', class: "w-24 h-24 text-dark-material transition-transform group-hover:rotate-90" %}
+                                        </div>
+
+                                        {% render "product-quick-view-modal", product: product, section: section %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </li>
+        </ul>
+    </div>
+</div>
+
+
+<script>
+    window.glide_options = window.glide_options || {};
+    window.glide_options['slider-{{ section.id }}'] = {};
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.lookbook.name",
+  "tag": "section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "default": "Heading",
+      "label": "t:settings_schema.global.settings.heading.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "slide_image",
+      "label": "t:sections.slideshow.blocks.slide.settings.image.label"
+    },
+    {
+      "type": "product_list",
+      "id": "product_list",
+      "label": "t:sections.featured-products.choose_products"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.product-recommendations.settings.header__2.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_secondary_image",
+      "default": false,
+      "label": "t:sections.main-collection-product-grid.settings.show_secondary_image.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "default": false,
+      "label": "t:sections.product-recommendations.settings.show_vendor.label"
+    },
+    {
+      "type": "select",
+      "id": "product_hover_button",
+      "label": "t:sections.main-collection-product-grid.settings.product_hover_button.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.main-collection-product-grid.settings.product_hover_button.options.none.label"
+        },
+        {
+          "value": "quick_view",
+          "label": "t:sections.main-collection-product-grid.settings.product_hover_button.options.options__1.label"
+        },
+        {
+          "value": "quick_buy",
+          "label": "t:sections.main-collection-product-grid.settings.product_hover_button.options.options__2.label"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_stock_state",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.show_stock_state.label"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "t:sections.featured-products.settings.background_color.label",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "select",
+      "id": "text_theme",
+      "label": "t:settings_schema.global.settings.text_theme.label",
+      "options": [
+        {
+          "value": "dark",
+          "label": "t:sections.all.text_theme.options.dark"
+        },
+        {
+          "value": "light",
+          "label": "t:sections.all.text_theme.options.light"
+        }
+      ],
+      "default": "dark"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 200,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.lookbook.presets.name"
+    }
+  ]
+}
+{% endschema %}

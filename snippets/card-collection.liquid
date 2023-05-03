@@ -1,0 +1,61 @@
+{% comment %}
+    Renders a collection card
+
+    Accepts:
+    - card_collection: {Object} Collection Liquid object
+
+    Usage:
+    {% render 'card-collection' %}
+{% endcomment %}
+
+<div class="product-card">
+    <div class="product-card-main">
+        <div class="relative group overflow-hidden">
+            <a href="{{ card_collection.url }}" title="{{ card_collection.title | escape }}"
+               class="relative group block {{ lookbookClasses }}">
+                {% if card_collection.featured_image %}
+                    <picture>
+                        {% if lookbook %}
+                            <source media="(min-width: 768px)"
+                                    data-srcset="{{ card_collection.featured_image | image_url: width: 544, height: 544, crop: "center" }},
+                                    {{ card_collection.featured_image | image_url: width: 1088, height: 1088, crop: "center" }} 2x"/>
+                        {% else %}
+                            <source media="(min-width: 768px)"
+                                    data-srcset="{{ card_collection.featured_image | image_url: width: 340, height: 340, crop: "center" }},
+                                        {{ card_collection.featured_image | image_url: width: 512, height: 512, crop: "center" }} 2x"/>
+                        {% endif %}
+                        <source media="(min-width: 360px)"
+                                data-srcset="{{ card_collection.featured_image | image_url: width: 156, height: 156, crop: "center" }},
+                                    {{ card_collection.featured_image | image_url: width: 312, height: 312, crop: "center" }} 2x"/>
+                        {% liquid
+                            if card_collection.featured_image.alt != blank
+                                assign image_alt = card_collection.featured_image.alt
+                            else
+                                assign image_alt = card_collection.title
+                            endif
+                        %}
+                        <img data-src="{{ card_collection.featured_image | image_url: width: 340, height: 340, crop: "center" }}"
+                             width="340"
+                             height="340"
+                             alt="image_alt"
+                             class="lazyload w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                    </picture>
+                {% else %}
+                    {{ 'collection-1' | placeholder_svg_tag: 'bg-dark-10 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110' }}
+                {% endif %}
+            </a>
+        </div>
+        <div class="pt-16">
+            <h3 {% if text_theme == "light" %}class="text-light"{% endif %}>
+                {% liquid
+                    assign title_class = "hover-underline-animation"
+                    assign card_title = card_collection.title | default: "Example product title"
+                    if text_theme == " light"
+                        assign title_class = title_class | append: "hover:text-light"
+                    endif
+                %}
+                {{ card_title | link_to: card_collection.url, class: title_class }}
+            </h3>
+        </div>
+    </div>
+</div>

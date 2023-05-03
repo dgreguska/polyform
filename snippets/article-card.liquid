@@ -1,0 +1,74 @@
+{% comment %}
+    Renders an article card
+
+    Accepts:
+    - article: {Object} Article Liquid object
+
+    Usage:
+    {% render 'article-card' %}
+{% endcomment %}
+
+{%- if article and article != empty -%}
+    <div class="group max-sm:flex w-full">
+        {% comment %} <article aria-labelledby="Article-{{ article.id }}"> {% endcomment %}
+        <div class="max-sm:w-1/2 max-sm:pr-16">
+            <a href="{{ article.url }}"
+               class="relative block md:mb-16 h-120 md:h-300 bg-light-material rounded-md overflow-hidden"
+               title="{{ article.title | truncate: 50 | escape }}">
+                {%- if article.image -%}
+                    <picture>
+                        <source media="(min-width: 768px)"
+                                data-srcset="{{ article.image.src | image_url: height: 300 }},
+                                            {{ article.image.src | image_url: height: 600 }} 2x"/>
+                        <source media="(min-width: 360px)"
+                                data-srcset="{{ article.image.src | image_url: height: 120 }},
+                                            {{ article.image.src | image_url: height: 240 }} 2x"/>
+                        {% liquid
+                            if article.image.src.alt != blank
+                                assign image_alt = article.image.src.alt
+                            else
+                                assign image_alt = article.title
+                            endif
+                        %}
+                        <img data-src="{{ article.image.src | image_url: height: 300 }}" alt="{{ image_alt }}"
+                             class="lazyload w-full h-full object-cover">
+                    </picture>
+                    <span class="absolute top-0 block-0 w-full h-full bg-dark-30 opacity-0 transition-opacity group-hover:opacity-100"></span>
+                {% else %}
+                    {{ 'image' | placeholder_svg_tag: 'w-full h-full object-cover' }}
+                {%- endif -%}
+            </a>
+        </div>
+
+        <div class="max-sm:w-1/2">
+            <a {% if article.url == blank %}
+                role="link"
+                aria-disabled="true"
+            {% else %}href="{{ article.url }}" {% endif %}
+                    class="block md:mt-8 hover-underline-animation"
+                    title="{{ article.title | truncate: 50 | escape }}">
+                <h2 class="max-sm:mb-4 h4 md:leading-tight line-clamp-2">
+                    {{ article.title | truncate: 50 | escape | default: "Article title" }}
+                </h2>
+            </a>
+            <div class="max-sm:hidden mt-8 text-p-small text-dark-subdued line-clamp-2 lg:line-clamp-3">
+                {{ article.excerpt_or_content | strip_html | truncatewords: 30 | default: "Article content text" }}
+            </div>
+            <div class="mt-8 md:mt-16">
+                <ul class="-mx-4 -my-2 flex items-center flex-wrap text-caption">
+                    {% assign tags_size = article.tags | size %}
+                    {% if tags_size > 0 %}
+                        {% for tag in article.tags %}
+                            <li class="max-sm:hidden px-4 py-2">
+                                <div class="inline-block px-8 py-2 bg-dark-10 text-caption rounded-full">{{ tag }}</div>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    <li class="px-4 py-2">
+                        <div class="py-2 text-caption text-dark-subdued">{{ article.published_at | time_tag: format: 'date' }}</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{%- endif -%}

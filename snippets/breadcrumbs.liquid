@@ -1,0 +1,79 @@
+{%- unless template == 'index' or template == 'cart' or template == 'list-collections' or template == '404' -%}
+    {%- assign t = template | split: '.' | first -%}
+
+    <nav{% if class %} class="{{ class }}"{% endif %} role="navigation" aria-label="breadcrumbs">
+        <ol class="{% unless t == "product" %}md:text-p-small {% endunless %}text-caption md:line-clamp-1 overflow-x-auto max-sm:whitespace-nowrap">
+            <li class="inline align-middle">
+                {{ 'general.home' | t | link_to: routes.root_url }}
+                {% liquid
+                    if t == "product"
+                        render 'icon-right-arrow-big', class: "mx-4 w-8 h-8 text-dark-60"
+                    endif
+                %}
+            </li>
+            {%- case t -%}
+                {%- when 'page' -%}
+                    <li class="inline-flex items-center align-middle text-dark-60" aria-current="page">
+                        {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12 text-dark-60" %}
+                        {{ page.title }}
+                    </li>
+                {%- when 'product' -%}
+                    {% if product.collections != blank %}
+                        {% for collection in product.collections %}
+                            {%- if collection.url -%}
+                                <li class="text-caption inline-flex items-center align-middle text-dark-60">
+                                    {{ collection.title | link_to: collection.url, collection.title }}{% unless forloop.last %}, {% endunless %}
+                                </li>
+                            {%- endif -%}
+                        {% endfor %}
+                    {% endif %}
+                {%- when 'collection' and collection.handle -%}
+                    {%- if current_tags -%}
+                        <li class="inline-flex items-center align-middle">
+                            {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12 text-dark-60" %}
+                            {{ collection.title | link_to: collection.url, collection.title }}
+                        </li>
+                        <li class="inline-flex items-center align-middle">
+                            {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12 text-dark-60" %}>
+                            {{ current_tags }}
+                        </li>
+                    {%- else -%}
+                        <li class="inline-flex items-center align-middle{% if class == "text-light" %} text-light-material{% else %} text-dark-60{% endif %}"
+                            aria-current="page">
+                            {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12" %}
+                            {{ collection.title }}
+                        </li>
+                    {%- endif -%}
+                {%- when 'blog' -%}
+                    {%- if current_tags -%}
+                        <li class="inline-flex items-center align-middle">
+                            {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12 text-dark-60" %}
+                            {{ blog.title | link_to: blog.url }}
+                        </li>
+                        <li class="inline-flex items-center align-middle text-dark-60" aria-current="page">
+                            {{ current_tags }}
+                        </li>
+                    {%- else -%}
+                        <li class="inline-flex items-center align-middle text-dark-60" aria-current="page">
+                            {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12 text-dark-60" %}
+                            {{ blog.title }}
+                        </li>
+                    {%- endif -%}
+                {%- when 'article' -%}
+                    <li class="inline-flex items-center align-middle">
+                        {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12 text-dark-60" %}
+                        {{ blog.title | link_to: blog.url, blog.title }}
+                    </li>
+                    <li class="inline-flex items-center align-middle text-dark-60" aria-current="page">
+                        {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12 text-dark-60" %}
+                        {{ article.title }}
+                    </li>
+                {%- else -%}
+                    <li class="inline-flex items-center align-middle text-dark-60" aria-current="page">
+                        {% render 'icon-right-arrow-big', class: "mx-4 w-12 h-12 text-dark-60" %}
+                        {{ page_title }}
+                    </li>
+            {%- endcase -%}
+        </ol>
+    </nav>
+{%- endunless -%}

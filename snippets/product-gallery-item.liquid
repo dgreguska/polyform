@@ -1,0 +1,121 @@
+<div class="relative h-full w-full">
+    {% if media.media_type == 'image' %}
+        {% liquid
+            if is_quickview
+                assign lazyloading = lazyloading | append: "lazy"
+            endif
+        %}
+        <picture>
+            {% unless is_quickview %}
+                <source media="(min-width: 688px)"
+                        srcset="{{ media.preview_image | image_url: width: 896, height: 688, crop: "center" }},
+                                {{ media.preview_image | image_url: width: 1376, height: 1376, crop: "center" }} 2x"/>
+            {% endunless %}
+            <source media="(min-width: 550px)"
+                    srcset="{{ media.preview_image | image_url: width: 550, height: 550, crop: "center" }},
+                                {{ media.preview_image | image_url: width: 1110, height: 1110, crop: "center" }} 2x"/>
+            <source media="(min-width: 375px)"
+                    srcset="{{ media.preview_image | image_url: width: 375, height: 375, crop: "center" }},
+                                {{ media.preview_image | image_url: width: 750, height: 750, crop: "center" }} 2x"/>
+            <source media="(min-width: 165px)"
+                    srcset="{{ media.preview_image | image_url: width: 165, height: 165, crop: "center" }},
+                                {{ media.preview_image | image_url: width: 330, height: 330, crop: "center" }} 2x"/>
+            {% liquid
+                unless forloop.first
+                    assign image_loading = "lazy"
+                endunless
+            %}
+            <img src="{{ media | image_url: width: 896, height: 688, crop: "center" }}"
+                 alt="{{ media.preview_image.alt }}"
+                 width="896"
+                 height="688"
+                {% if is_quickview %}
+                    loading="lazy"
+                {% endif %}
+                 class="{{ classes }}">
+        </picture>
+    {%- endif -%}
+
+    {%- if media.media_type != 'image' -%}
+        {%- if media.media_type == 'model' -%}
+            <product-model class="deferred-media media media--transparent gradient global-media-settings no-js-hidden" style="padding-top: 100%" data-media-id="{{ media.id }}">
+        {%- else -%}
+            <deferred-media class="deferred-media gradient global-media-settings media no-js-hidden" data-media-id="{{ media.id }}">
+        {%- endif -%}
+        <button id="Deferred-Poster-Modal-{{ media.id }}"
+                class="group w-full h-full deferred-media__poster bg-dark-10 cursor-pointer" type="button">
+            <span class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 flex-center">
+                {%- if media.media_type == 'model' -%}
+                    <span class="visually-hidden">{{ 'products.product.media.play_model' | t }}</span>
+                    {%- render 'icon-3d-model' -%}
+                {%- else -%}
+                    <span class="visually-hidden">{{ 'products.product.media.play_video' | t }}</span>
+                    <div class="flex-center w-72 h-72 bg-light rounded-full transition-transform group-hover:scale-110"
+                         aria-hidden="true">
+                        {% render "icon-play", class: "w-56 h-56 text-dark-material" %}
+                    </div>
+                {%- endif -%}
+            </span>
+            <picture>
+                <source media="(min-width: 688px)"
+                        data-srcset="{{ media.preview_image | image_url: width: 688 }},
+                                {{ media.preview_image | image_url: width: 1376 }} 2x"/>
+                <source media="(min-width: 550px)"
+                        data-srcset="{{ media.preview_image | image_url: width: 550 }},
+                                {{ media.preview_image | image_url: width: 1110 }} 2x"/>
+                <source media="(min-width: 375px)"
+                        data-srcset="{{ media.preview_image | image_url: width: 375 }},
+                                {{ media.preview_image | image_url: width: 750 }} 2x"/>
+                <source media="(min-width: 165px)"
+                        data-srcset="{{ media.preview_image | image_url: width: 165 }},
+                                {{ media.preview_image | image_url: width: 330 }} 2x"/>
+                {% liquid
+                    unless forloop.first
+                        assign image_loading = "lazy"
+                    endunless
+                %}
+                <img data-src="{{ media.preview_image | image_url: width: 688 }}"
+                     width="688"
+                     alt="{{ media.preview_image.alt }}"
+                     class="lazyload w-full object-scale-down">
+            </picture>
+        </button>
+        <template>
+            {%- liquid
+                case media.media_type
+                    when 'external_video'
+                        assign video_class = 'max-md:h-300 w-full h-full js-' | append: media.host
+                        if media.host == 'youtube'
+                            echo media | external_video_url: autoplay: true, loop: loop, playlist: media.external_id | external_video_tag: width: 688, class: video_class, loading: "lazy"
+                        else
+                            echo media | external_video_url: autoplay: true, loop: loop | external_video_tag: class: video_class, loading: "lazy"
+                        endif
+                    when 'video'
+                        echo media | media_tag: image_size: "2048x", autoplay: true, loop: loop, controls: true, preload: "none"
+                    when 'model'
+                        echo media | media_tag: image_size: "2048x", toggleable: true
+                endcase
+            -%}
+        </template>
+
+        {%- if media.media_type == 'model' -%}
+            </product-model>
+            {%- if xr_button -%}
+                <button
+                        class="button button--full-width product__xr-button"
+                        type="button"
+                        aria-label="{{ 'products.product.xr_button_label' | t }}"
+                        data-shopify-xr
+                        data-shopify-model3d-id="{{ media.id }}"
+                        data-shopify-title="title"
+                        data-shopify-xr-hidden
+                >
+                    {% render 'icon-3d-model' %}
+                    {{ 'products.product.xr_button' | t }}
+                </button>
+            {%- endif -%}
+        {%- else -%}
+            </deferred-media>
+        {%- endif -%}
+    {%- endif -%}
+</div>

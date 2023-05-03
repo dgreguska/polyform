@@ -1,0 +1,79 @@
+{% liquid
+    assign currencies_using_comma_decimals = 'ANG,ARS,BRL,BYN,BYR,CLF,CLP,COP,CRC,CZK,DKK,EUR,HRK,HUF,IDR,ISK,MZN,NOK,PLN,RON,RUB,SEK,TRY,UYU,VES,VND' | split: ','
+    assign uses_comma_decimals = false
+    if currencies_using_comma_decimals contains cart.currency.iso_code
+        assign uses_comma_decimals = true
+    endif
+%}
+<div class="js-filter{% unless forloop.last %} border-b border-light-material{% endunless %}"
+     data-index="{{ forloop.index }}">
+    <button type="button"
+            class="js-facets-summary collapse-btn w-full py-16 font-bold"
+            data-bs-toggle="collapse"
+            data-bs-target="#Filter{{ forloop.index }}{{ filter.label | camelcase }}"
+            aria-controls="Filter{{ forloop.index }}{{ filter.label | camelcase }}"
+            aria-expanded="true">
+        {{ filter.label | escape }}
+        {% render "icon-down-arrow", class: "w-16 h-16" %}
+    </button>
+    <div id="Filter{{ forloop.index }}{{ filter.label | camelcase }}" class="collapse show">
+        <div class="pt-8 pb-32">
+            {%- assign max_price_amount = filter.range_max | money | strip_html | escape -%}
+            <p class="js-facets-selected pb-18 text-p-small text-dark-60">{{ "products.facets.max_price" | t: price: max_price_amount }}</p>
+
+            <price-range class="flex-center">
+                {% comment %}<span class="field-currency">{{ cart.currency.symbol }}</span>{% endcomment %}
+                <label class="flex items-center w-full p-8 text-center text-p border border-light-material rounded-sm whitespace-nowrap transition-colors hover:border-brand"
+                       for="Filter-{{ filter.label | escape }}-GTE">
+                    <input class="outline-none w-full"
+                           name="{{ filter.min_value.param_name }}"
+                           id="Filter-{{ filter.label | escape }}-GTE"
+                            {%- if filter.min_value.value -%}
+                                {%- if uses_comma_decimals -%}
+                                    value="{{ filter.min_value.value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                                    placeholder="{{ filter.min_value.value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                                {%- else -%}
+                                    value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                                    placeholder="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}"
+                                {% endif %}
+                            {%- endif -%}
+                           type="number"
+                           placeholder="0"
+                           min="0"
+                            {%- if uses_comma_decimals -%}
+                                max="{{ filter.range_max | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                            {%- else -%}
+                                max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            {% endif %}
+                    >
+                    <span>{{ cart.currency.symbol }}</span>
+                </label>
+                <div class="mx-8 h4 flex-shrink-0">-</div>
+                <label class="flex items-center w-full p-8 text-center text-p border border-light-material rounded-sm whitespace-nowrap transition-colors hover:border-brand"
+                       for="Filter-{{ filter.label | escape }}-LTE">
+                    <input class="outline-none w-full"
+                           name="{{ filter.max_value.param_name }}"
+                           id="Filter-{{ filter.label | escape }}-LTE"
+                            {%- if filter.max_value.value -%}
+                                {%- if uses_comma_decimals -%}
+                                    value="{{ filter.max_value.value | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                                {%- else -%}
+                                    value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}"
+                                {% endif %}
+                            {%- endif -%}
+                           type="number"
+                           min="0"
+                            {%- if uses_comma_decimals -%}
+                                placeholder="{{ filter.range_max | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                                max="{{ filter.range_max | money_without_currency | replace: '.', '' | replace: ',', '.' }}"
+                            {%- else -%}
+                                placeholder="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                                max="{{ filter.range_max | money_without_currency | replace: ',', '' }}"
+                            {% endif %}
+                    >
+                    <span>{{ cart.currency.symbol }}</span>
+                </label>
+            </price-range>
+        </div>
+    </div>
+</div>

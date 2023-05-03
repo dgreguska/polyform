@@ -1,0 +1,38 @@
+{% if customer %}
+    <div class="header-customer-icon relative md:mx-4">
+        <button id="customerDropdownButton"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                data-bs-display="static"
+                title="Account"
+                aria-label="account"
+                class="group flex p-10 rounded-button transition-colors hover:bg-light-surface">
+            {% render "icon-person", class: icon_classes %}
+        </button>
+        <div class="dropdown-menu fade right-0 left-auto" aria-labelledby="customerDropdownButton">
+            <p href="{{ routes.account_url }}"
+               class="block py-8 px-24 text-button-large font-bold">
+                {{ customer.first_name }} {{ customer.last_name }}
+            </p>
+            <ul>
+                <li>
+                    {{ 'customer.account.overview' | t | link_to: routes.account_url, class: "dropdown-menu-link" }}
+                </li>
+                <li><a href="{{ routes.account_url }}?view=order_history"
+                       class="dropdown-menu-link">{{ "customer.orders.title" | t }}</a></li>
+                <li>
+                    {{ 'customer.addresses.title' | t | link_to: routes.account_addresses_url, class: "dropdown-menu-link" }}
+                </li>
+            </ul>
+            <hr>
+            {{ 'customer.log_out' | t | link_to: routes.account_logout_url, class: "dropdown-menu-link" }}
+        </div>
+    </div>
+{% else %}
+    <a href="{{ routes.account_login_url }}" id="show_login_button"
+       class="header-customer-icon group flex p-10 md:mx-4 transition-colors rounded-button hover:bg-light-surface">
+        {% render "icon-person", class: icon_classes %}
+        <span class="visually-hidden">{{ "customer.account.title" | t }}</span>
+    </a>
+{% endif %}
