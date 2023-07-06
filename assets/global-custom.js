@@ -7297,20 +7297,37 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 var GenericSlider = /*#__PURE__*/function () {
   function GenericSlider(selector) {
+    var _this = this;
+
     _classCallCheck(this, GenericSlider);
 
-    var observer = new IntersectionObserver(this.handleIntersection.bind(this), {
-      threshold: 0
-    });
-    document.querySelectorAll(selector).forEach(function (el) {
-      observer.observe(el);
+    try {
+      this.initObserver(selector);
+    } catch (e) {
+      document.body.addEventListener('intersection-observer-loaded', function () {
+        _this.initObserver(selector);
+      });
+    }
+
+    document.body.addEventListener('product-recommendations-loaded', function (e) {
+      _this.initObserver(selector);
     });
   }
 
   _createClass(GenericSlider, [{
+    key: "initObserver",
+    value: function initObserver(selector) {
+      var observer = new IntersectionObserver(this.handleIntersection.bind(this), {
+        threshold: 0
+      });
+      document.querySelectorAll(selector).forEach(function (el) {
+        observer.observe(el);
+      });
+    }
+  }, {
     key: "handleIntersection",
     value: function handleIntersection(entries) {
-      var _this = this;
+      var _this2 = this;
 
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
@@ -7319,7 +7336,7 @@ var GenericSlider = /*#__PURE__*/function () {
           }
 
           setTimeout(function () {
-            _this.initSlider(entry.target);
+            _this2.initSlider(entry.target);
           }, 1);
         }
       });
@@ -7336,25 +7353,70 @@ var GenericSlider = /*#__PURE__*/function () {
         arrows.style.display = '';
       }
     }
+    /*
+    * Creates "fake" or "placeholder" slides at the beginning and end of carousels to fix empty space
+    * caused by wrong transitioning of infinite carousels in glide.js
+    * Issue can't be fixed directly in glide.js because of wrong design of carousel functionality.
+    * */
+
+  }, {
+    key: "fixCarouselType",
+    value: function fixCarouselType(glide, el) {
+      if (glide.settings.type === 'carousel') {
+        var slides = el.querySelector('.glide__slides');
+        var firstElToClone = slides.children[0];
+        var lastElToClone = slides.children[slides.children.length - 1];
+
+        if (el.dataset['numSlides'] > 2) {
+          firstElToClone = slides.children[0].nextElementSibling.nextElementSibling;
+          lastElToClone = slides.children[slides.children.length - 1].previousElementSibling.previousElementSibling;
+        }
+
+        var firstSlide = lastElToClone.cloneNode(true);
+        var lastSlide = firstElToClone.cloneNode(true);
+        firstSlide.classList.add('glide__slide-fake-first');
+        firstSlide.style.right = "calc(100% + ".concat(glide.settings.gap, "px)");
+        firstSlide.style.margin = 0;
+        lastSlide.classList.add('glide__slide-fake-last');
+        lastSlide.style.left = "calc(100% + ".concat(glide.settings.gap, "px)");
+        lastSlide.style.margin = 0;
+        slides.prepend(firstSlide);
+        slides.append(lastSlide);
+      }
+    }
   }, {
     key: "initSlider",
     value: function initSlider(el) {
-      var _this2 = this;
+      var _this3 = this;
 
-      if (!window.glide_options) {
+      if (!window.glide_options || !window.glide_options[el.dataset['genericSlider']]) {
         return;
       }
 
       var glide = new _glidejs_glide__WEBPACK_IMPORTED_MODULE_0__["default"](el, window.glide_options[el.dataset['genericSlider']]);
       glide.numSlides = el.dataset['numSlides'] !== undefined ? parseInt(el.dataset['numSlides']) : null;
+      /* do not initialize sliders with insufficient number of slides */
+
+      if (glide.numSlides && glide.numSlides <= glide.settings.perView) {
+        return;
+      }
+
       var arrows = glide.selector.querySelector('.glide__arrows');
       glide.on('resize', function () {
-        _this2.showArrowsWhenNeeded(arrows, glide);
+        _this3.showArrowsWhenNeeded(arrows, glide);
       });
       glide.on('mount.after', function () {
-        _this2.showArrowsWhenNeeded(arrows, glide);
+        _this3.showArrowsWhenNeeded(arrows, glide);
+
+        _this3.fixCarouselType(glide, el);
       });
       glide.mount();
+      window.glideInstances = window.glideInstances || {};
+      window.glideInstances[el.dataset['genericSlider']] = glide;
+      var event = new CustomEvent('glide-initialized', {
+        detail: glide
+      });
+      document.body.dispatchEvent(event);
       glide.on('run', function () {
         document.querySelectorAll('.js-youtube').forEach(function (video) {
           video.contentWindow.postMessage('{"event":"command","func":"' + 'pauseVideo' + '","args":""}', '*');

@@ -33,164 +33,231 @@
                         {%- case block.type -%}
                             {%- when '@app' -%}
                                 {% render block %}
-                            {%- when 'collapsible_tab' -%}
-                                {% if block.settings.content != blank or block.settings.page.content != blank %}
-                                    <div class="text-p-small border-b border-light-material" {{ block.shopify_attributes }}>
-                                        <button class="collapse-btn collapsed py-16 w-full font-bold hover:text-brand"
-                                                type="button"
-                                                data-bs-toggle="collapse"
-                                                role="button"
-                                                aria-expanded="true"
-                                                data-bs-target="#{{ block.settings.heading | camelcase }}"
-                                                aria-controls="{{ block.settings.heading | camelcase }}">
-                                            {{ block.settings.heading }}
-                                            {% render "icon-plus", class: "ml-8 w-16 h-16 flex-shrink-0" %}
-                                        </button>
-                                        <div id="{{ block.settings.heading | camelcase }}"
-                                             class="collapse pb-16 max-h-400 text-dark-material overflow-auto custom-scrollbar">
-                                            {{ block.settings.content }}
-                                            {{ block.settings.page.content }}
-                                        </div>
-                                    </div>
-                                {% endif %}
-                            {%- when 'title' -%}
-                                <section class="max-md:hidden pb-24">
-                                    {% render 'breadcrumbs' %}
-                                </section>
-                                <p class="mb-12">{{ product.vendor }}</p>
-                                <h1 class="h3">{{ product.title | escape }}</h1>
-
-                            {%- when 'price' -%}
-                                <div class="mt-16 md:mt-32" {{ block.shopify_attributes }}>
-                                    {% render "product-detail-price", section: section, product: product %}
+                        {%- when 'collapsible_tab' -%}
+                        {% if block.settings.content != blank or block.settings.page.content != blank %}
+                            <div class="text-p-small border-b border-light-material" {{ block.shopify_attributes }}>
+                                <button class="collapse-btn collapsed py-16 w-full font-bold hover:text-brand"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        role="button"
+                                        aria-expanded="true"
+                                        data-bs-target="#{{ block.settings.heading | camelcase }}"
+                                        aria-controls="{{ block.settings.heading | camelcase }}">
+                                    {{ block.settings.heading }}
+                                    {% render "icon-plus", class: "ml-8 w-16 h-16 flex-shrink-0" %}
+                                </button>
+                                <div id="{{ block.settings.heading | camelcase }}"
+                                     class="collapse pb-16 max-h-400 text-dark-material overflow-auto custom-scrollbar">
+                                    {{ block.settings.content }}
+                                    {{ block.settings.page.content }}
                                 </div>
+                            </div>
+                        {% endif %}
+                        {%- when 'title' -%}
+                            <section class="max-md:hidden pb-24">
+                                {% render 'breadcrumbs' %}
+                            </section>
+                            <p class="mb-12">{{ product.vendor }}</p>
+                            <h1 class="h3">{{ product.title | escape }}</h1>
+
+                        {%- when 'price' -%}
+                            <div class="mt-16 md:mt-32" {{ block.shopify_attributes }}>
+                                {% render "product-detail-price", section: section, product: product %}
+                            </div>
                             {%- when 'description' -%}
                                 {% render 'product-description', product: product %}
-                            {%- when 'variant_picker' -%}
-                                {%- unless product.has_only_default_variant -%}
-                                    <variant-selects
-                                            id="variant-selects-{{ section.id }}"
-                                            data-section="{{ section.id }}"
-                                            data-url="{{ product.url }}"
-                                            {% if update_url == false %}
-                                                data-update-url="false"
+                        {%- when 'variant_picker' -%}
+                        {%- unless product.has_only_default_variant -%}
+                            <variant-selects
+                                    id="variant-selects-{{ section.id }}"
+                                    data-section="{{ section.id }}"
+                                    data-url="{{ product.url }}"
+                                    {% if update_url == false %}
+                                        data-update-url="false"
+                                    {% endif %}
+                                    {{ block.shopify_attributes }}
+                            >
+                                <div class="mt-24">
+                                    {%- for option in product.options_with_values -%}
+                                        {% if option.name == 'Color' %}
+                                            {% render "product-variant-color", option: option, product: product %}
+                                        {% endif %}
+                                        <div class="mt-24{% if option.name == 'Color' %} hidden{% endif %}">
+                                            {% assign valuesSize = option.values | size %}
+                                            {% if valuesSize > 1 %}
+                                                <div>
+                                                    <label class="w-full flex justify-between mb-14 text-p-small font-bold"
+                                                           for="Option-{{ section.id }}-{{ forloop.index0 }}{% if is_quickview %}-quickview{% endif %}">
+                                                        {{ option.name }}
+                                                    </label>
+                                                    <div class="relative">
+                                                        <select id="Option-{{ section.id }}-{{ forloop.index0 }}{% if is_quickview %}-quickview{% endif %}"
+                                                                class="btn btn-outline w-full outline-none text-left appearance-none"
+                                                                name="options[{{ option.name | escape }}]"
+                                                                form="{{ product_form_id }}"
+                                                        >
+                                                            {% render 'product-variant-options', product: product, option: option, block: block %}
+                                                        </select>
+                                                        {% render "icon-down-arrow", class: "absolute top-1/2 -translate-y-1/2 right-16 w-16 h-16" %}
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <div class="flex justify-between text-p-small">
+                                                    <p class="w-full flex justify-between text-p-small font-bold">{{ option.name }}</p>
+                                                    <p class="ml-8 text-dark-subdued flex-shrink-0">{{ option.selected_value }}</p>
+                                                </div>
                                             {% endif %}
-                                            {{ block.shopify_attributes }}
-                                    >
-                                        <div class="mt-24">
-                                            {%- for option in product.options_with_values -%}
-                                                {% if option.name == 'Color' %}
-                                                    {% render "product-variant-color", option: option, product: product %}
-                                                {% endif %}
-                                                <div class="mt-24{% if option.name == 'Color' %} hidden{% endif %}">
-                                                    {% assign valuesSize = option.values | size %}
-                                                    {% if valuesSize > 1 %}
-                                                        <div>
-                                                            <label class="w-full flex justify-between mb-14 text-p-small font-bold"
-                                                                   for="Option-{{ section.id }}-{{ forloop.index0 }}{% if is_quickview %}-quickview{% endif %}">
-                                                                {{ option.name }}
-                                                            </label>
-                                                            <div class="relative">
-                                                                <select id="Option-{{ section.id }}-{{ forloop.index0 }}{% if is_quickview %}-quickview{% endif %}"
-                                                                        class="btn btn-outline w-full outline-none text-left appearance-none"
-                                                                        name="options[{{ option.name | escape }}]"
-                                                                        form="{{ product_form_id }}"
-                                                                >
-                                                                    {% render 'product-variant-options', product: product, option: option, block: block %}
-                                                                </select>
-                                                                {% render "icon-down-arrow", class: "absolute top-1/2 -translate-y-1/2 right-16 w-16 h-16" %}
-                                                            </div>
-                                                        </div>
-                                                    {% else %}
-                                                        <div class="flex justify-between text-p-small">
-                                                            <p class="w-full flex justify-between text-p-small font-bold">{{ option.name }}</p>
-                                                            <p class="ml-8 text-dark-subdued flex-shrink-0">{{ option.selected_value }}</p>
-                                                        </div>
-                                                    {% endif %}
-                                                </div>
-                                            {%- endfor -%}
                                         </div>
+                                    {%- endfor -%}
+                                </div>
 
-                                        <script type="application/json">
+                                <script type="application/json">
                                             {{ product.variants | json }}
+                                </script>
+                            </variant-selects>
+                        {%- endunless -%}
+                            {% render 'product-boxed-info', product: product %}
 
-                                        </script>
-                                    </variant-selects>
-                                {%- endunless -%}
-                                {% render 'product-boxed-info', product: product %}
+                        {%- when 'quantity_selector' -%}
+                            {% render 'quantity-selector', section: section, product: product, block: block, product_form_id: product_form_id %}
 
-                            {%- when 'quantity_selector' -%}
-                                {% render 'quantity-selector', section: section, product: product, block: block, product_form_id: product_form_id %}
+                            <div class="product-form__error-message-wrapper mt-24 p-16 bg-negative-25 border border-negative rounded-md"
+                                 role="alert" hidden>
+                                <p class="product-form__error-message text-p-small text-brand font-bold"></p>
+                            </div>
 
-                                <div class="product-form__error-message-wrapper mt-24 p-16 bg-negative-25 border border-negative rounded-md"
-                                     role="alert" hidden>
-                                    <p class="product-form__error-message text-p-small text-brand font-bold"></p>
-                                </div>
+                        {%- when 'buy_buttons' -%}
+                            <div class="mb-16">
+                                {% render "product-buy-buttons", section: section, block: block, product: product, product_form_id: product_form_id %}
+                            </div>
 
-                            {%- when 'buy_buttons' -%}
-                                <div class="mb-16">
-                                    {% render "product-buy-buttons", section: section, block: block, product: product, product_form_id: product_form_id %}
-                                </div>
+                        {%- when 'popup' -%}
+                            <button type="button"
+                                    class="underline py-24"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#PopupModal-{{ block.id }}"
+                                    {{ block.shopify_attributes }}>
+                                {{ block.settings.text | default: block.settings.page.title }}
+                            </button>
 
-                            {%- when 'popup' -%}
-                                <button type="button"
-                                        class="underline py-24"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#PopupModal-{{ block.id }}"
-                                        {{ block.shopify_attributes }}>
-                                    {{ block.settings.text | default: block.settings.page.title }}
-                                </button>
-
-                                {%- if block.settings.page.content != blank -%}
-                                    <div id="PopupModal-{{ block.id }}" class="modal fade" aria-modal="true"
-                                         role="dialog">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content mx-auto" aria-modal="true" role="dialog"
-                                                 tabindex="-1">
-                                                <div class="modal-body p-0 max-sm:flex max-sm:flex-col md:h-auto">
-                                                    <div class="p-32 pt-40">
-                                                        <h2 class="mx-auto h3">{{ block.settings.page.title }}</h2>
-                                                        <div class="group absolute top-10 md:top-24 right-10 md:right-24 -m-10 p-10 cursor-pointer"
-                                                             data-bs-dismiss="modal">
-                                                            {% render "icon-close", class: "w-24 h-24 text-dark-material transition-transform group-hover:rotate-90" %}
-                                                        </div>
-                                                    </div>
-                                                    <div class="px-32 py-24 rich-text">
-                                                        {{ block.settings.page.content }}
-                                                    </div>
+                        {%- if block.settings.page.content != blank -%}
+                            <div id="PopupModal-{{ block.id }}" class="modal fade" aria-modal="true"
+                                 role="dialog">
+                                <div class="modal-dialog">
+                                    <div class="modal-content mx-auto" aria-modal="true" role="dialog"
+                                         tabindex="-1">
+                                        <div class="modal-body p-0 max-sm:flex max-sm:flex-col md:h-auto">
+                                            <div class="p-32 pt-40">
+                                                <h2 class="mx-auto h3">{{ block.settings.page.title }}</h2>
+                                                <div class="group absolute top-10 md:top-24 right-10 md:right-24 -m-10 p-10 cursor-pointer"
+                                                     data-bs-dismiss="modal">
+                                                    {% render "icon-close", class: "w-24 h-24 text-dark-material transition-transform group-hover:rotate-90" %}
                                                 </div>
+                                            </div>
+                                            <div class="px-32 py-24 rich-text">
+                                                {{ block.settings.page.content }}
                                             </div>
                                         </div>
                                     </div>
-                                {%- endif -%}
-                            {%- when 'rating' -%}
-                                {%- if product.metafields.reviews.rating.value != blank -%}
-                                    {% liquid
-                                        assign rating_decimal = 0
-                                        assign decimal = product.metafields.reviews.rating.value.rating | modulo: 1
-                                        if decimal >= 0.3 and decimal <= 0.7
-                                            assign rating_decimal = 0.5
-                                        elsif decimal > 0.7
-                                            assign rating_decimal = 1
-                                        endif
-                                    %}
-                                    <div class="mt-16 rating" role="img"
-                                         aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: product.metafields.reviews.rating.value, rating_max: product.metafields.reviews.rating.value.scale_max }}">
+                                </div>
+                            </div>
+                        {%- endif -%}
+                        {%- when 'rating' -%}
+                        {%- if product.metafields.reviews.rating.value != blank -%}
+                            {% liquid
+                                assign rating_decimal = 0
+                                assign decimal = product.metafields.reviews.rating.value.rating | modulo: 1
+                                if decimal >= 0.3 and decimal <= 0.7
+                                    assign rating_decimal = 0.5
+                                elsif decimal > 0.7
+                                    assign rating_decimal = 1
+                                endif
+                            %}
+                            <div class="mt-16 rating" role="img"
+                                 aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: product.metafields.reviews.rating.value, rating_max: product.metafields.reviews.rating.value.scale_max }}">
                                     <span aria-hidden="true" class="rating-star color-icon-{{ settings.accent_icons }}"
                                           style="--rating: {{ product.metafields.reviews.rating.value.rating | floor }}; --rating-max: {{ product.metafields.reviews.rating.value.scale_max }}; --rating-decimal: {{ rating_decimal }};"></span>
-                                    </div>
-                                    <p class="rating-text">
-                                        <span aria-hidden="true">{{ product.metafields.reviews.rating.value }} / {{ product.metafields.reviews.rating.value.scale_max }}</span>
-                                    </p>
-                                    <p class="rating-count">
-                                        <span aria-hidden="true">({{ product.metafields.reviews.rating_count }})</span>
-                                        <span class="visually-hidden">{{ product.metafields.reviews.rating_count }} {{ "accessibility.total_reviews" | t }}</span>
-                                    </p>
-                                {%- endif -%}
+                            </div>
+                            <p class="rating-text">
+                                <span aria-hidden="true">{{ product.metafields.reviews.rating.value }} / {{ product.metafields.reviews.rating.value.scale_max }}</span>
+                            </p>
+                            <p class="rating-count">
+                                <span aria-hidden="true">({{ product.metafields.reviews.rating_count }})</span>
+                                <span class="visually-hidden">{{ product.metafields.reviews.rating_count }} {{ "accessibility.total_reviews" | t }}</span>
+                            </p>
+                        {%- endif -%}
 
-                            {%- when 'share' -%}
-                                {% assign share_url = product.selected_variant.url | default: product.url | prepend: request.origin %}
-                                {% render "share-button", block: block, share_link: share_url %}
+                        {%- when 'share' -%}
+                            {% assign share_url = product.selected_variant.url | default: product.url | prepend: request.origin %}
+                            {% render "share-button", block: block, share_link: share_url %}
+
+                        {%- when 'complementary' -%}
+                            <product-recommendations data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ block.settings.product_list_limit }}&intent=complementary">
+                                {%- if recommendations.performed and recommendations.products_count > 0 and recommendations.intent == 'complementary' -%}
+                                    {% liquid assign is_slider = false
+                                        if recommendations.products_count > 2
+                                            assign is_slider = true
+                                        endif
+                                    %}
+                                    <div class="md:p-24 mt-24 md:bg-light-surface">
+                                        {% if is_slider %}
+                                        <div data-generic-slider="complementary-slider"
+                                             data-num-slides="{{ slides_num }}">
+                                        {% endif %}
+                                            <div class="mb-16 flex items-center justify-between">
+                                                <h2 class="text-p-large font-bold">{{ block.settings.block_heading }}</h2>
+                                                {% if is_slider %}
+                                                    <div data-glide-el="controls" class="flex-center gap-4">
+                                                        <button class="w-44 h-44 flex-center rounded-full border border-transparent transition-colors lg:hover:border-light-material"
+                                                                type="button"
+                                                                data-glide-dir="<"
+                                                                aria-label="Previous slide">
+                                                            {% render "icon-right-arrow-big", class: "w-16 h-16 rotate-180" %}
+                                                        </button>
+                                                        <button class="w-44 h-44 flex-center rounded-full border border-transparent transition-colors lg:hover:border-light-material"
+                                                                type="button"
+                                                                data-glide-dir=">"
+                                                                aria-label="Next slide">
+                                                            {% render "icon-right-arrow-big", class: "w-16 h-16" %}
+                                                        </button>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div data-glide-el="track" class="glide__track h-full">
+                                                <ul class="{% if is_slider %}glide__slides{% else %}flex -mx-8 md:-mx-12{% endif %}">
+                                                    {% for product in recommendations.products %}
+                                                        <li class="complementary-product{% if is_slider %} glide__slide{% else %} w-1/2 px-8 md:px-12{% endif %}">
+                                                            {% render 'card-product',
+                                                                    card_product: product,
+                                                                    button: 'quick_buy',
+                                                                    section_id: block.id,
+                                                                    section: block
+                                                            %}
+                                                        </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        {% if is_slider %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                {%- endif -%}
+                                <script>
+                                    window.glide_options = window.glide_options || {};
+                                    window.glide_options['complementary-slider'] = {
+                                        type: 'slider',
+                                        bound: true,
+                                        gap: 24,
+                                        dragThreshold: false,
+                                        perView: 2,
+                                        breakpoints: {
+                                            768: {
+                                                gap: 16,
+                                            }
+                                        }
+                                    };
+                                </script>
+                            </product-recommendations>
                         {%- endcase -%}
                     {%- endfor -%}
                 </div>
@@ -256,20 +323,6 @@
         {%- endfor -%}
       ]
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </script>
 </section>
 
@@ -412,6 +465,32 @@
         {
           "type": "paragraph",
           "content": "t:sections.main-product.blocks.rating.settings.paragraph.content"
+        }
+      ]
+    },
+        {
+      "type": "complementary",
+      "name": "t:sections.main-product.blocks.complementary_products.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-product.blocks.complementary_products.settings.paragraph.content"
+        },
+        {
+          "type": "text",
+          "id": "block_heading",
+          "default": "Pairs well with",
+          "label": "t:sections.main-product.blocks.complementary_products.settings.heading.label"
+        },
+        {
+          "type": "range",
+          "id": "product_list_limit",
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "default": 10,
+          "label": "t:sections.main-product.blocks.complementary_products.settings.product_list_limit.label"
         }
       ]
     }
